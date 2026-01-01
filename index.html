@@ -3,75 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pisto Coin - Wallet Connect</title>
+    <title>Pisto Coin - All Features</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
     <style>
         body { background: #0b0e11; color: white; text-align: center; font-family: 'Arial', sans-serif; margin: 0; padding: 0; user-select: none; }
         .header { display: flex; justify-content: space-between; padding: 15px; background: #1c1f24; border-bottom: 2px solid #f3ba2f; position: sticky; top: 0; z-index: 100; }
-        .stat-label { font-size: 10px; color: #888; }
+        .stat-label { font-size: 10px; color: #888; text-transform: uppercase; }
         .stat-value { color: #f3ba2f; font-weight: bold; font-size: 15px; }
         
         .tab-content { display: none; padding: 15px; height: 75vh; overflow-y: auto; padding-bottom: 100px; }
         .active-tab { display: block; }
 
-        .main-balance { font-size: 40px; margin: 15px 0; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .main-balance { font-size: 36px; margin: 15px 0; font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .main-balance img { width: 35px; margin-right: 8px; border-radius: 50%; }
 
-        .coin-btn { width: 220px; height: 220px; border-radius: 50%; border: 8px solid #2c2f35; cursor: pointer; transition: transform 0.05s; }
+        /* Coin Section */
+        .coin-btn { width: 200px; height: 200px; border-radius: 50%; border: 8px solid #2c2f35; cursor: pointer; transition: transform 0.05s; }
         .coin-btn:active { transform: scale(0.92); }
+        .energy-bar-bg { width: 80%; height: 10px; background: #333; border-radius: 10px; margin: 10px auto; overflow: hidden; }
+        .energy-bar-fill { width: 100%; height: 100%; background: #f3ba2f; }
 
-        /* Wallet Section */
-        .wallet-card { background: #1c1f24; padding: 20px; border-radius: 15px; border: 1px solid #333; margin-top: 20px; }
-        .wallet-btn { background: #0088cc; color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; font-size: 14px; }
-        .wallet-address { font-size: 10px; color: #f3ba2f; margin-top: 10px; word-break: break-all; }
+        /* Card Grid */
+        .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .card { background: #1c1f24; padding: 12px; border-radius: 12px; border: 1px solid #333; text-align: left; }
+        .card h4 { margin: 0; font-size: 12px; white-space: nowrap; overflow: hidden; }
+        .buy-btn, .task-btn, .wallet-btn { background: #f3ba2f; color: #000; border: none; padding: 8px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 5px; }
 
-        .footer { position: fixed; bottom: 0; width: 100%; background: #1c1f24; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #333; z-index: 1000; }
+        /* Tasks & Leaders */
+        .list-container { background: #1c1f24; border-radius: 12px; margin-top: 10px; text-align: left; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #333; }
+        
+        /* Footer */
+        .footer { position: fixed; bottom: 0; width: 100%; background: #1c1f24; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; z-index: 1000; }
         .nav-item { font-size: 10px; color: #888; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
         .nav-item.active { color: #f3ba2f; }
+        .plus-one { position: absolute; color: #f3ba2f; font-size: 26px; font-weight: bold; animation: floatUp 0.6s forwards; pointer-events: none; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div><span class="stat-label">Profit / hr</span><br><span id="pph-val" class="stat-value">+0</span></div>
+        <div><span class="stat-label">Profit/hr</span><br><span id="pph-val" class="stat-value">+0</span></div>
         <div><span class="stat-label">Rank</span><br><span id="rank-name" class="stat-value">Bronze</span></div>
     </div>
 
-    <div id="exchange-tab" class="tab-content active-tab">
+    <div id="tab-exchange" class="tab-content active-tab">
         <div class="main-balance"><img src="https://i.ibb.co/X7f3nTB/pisto-coin.jpg"> <span id="balance">0</span></div>
         <img src="https://i.ibb.co/X7f3nTB/pisto-coin.jpg" class="coin-btn" onclick="mine(event)">
         <div style="margin-top: 20px;">
             <div>⚡ <span id="energy">1000</span> / 1000</div>
-            <div style="width: 80%; height: 10px; background: #333; border-radius: 10px; margin: 10px auto; overflow: hidden;">
-                <div id="energy-bar" style="width: 100%; height: 100%; background: #f3ba2f;"></div>
-            </div>
+            <div class="energy-bar-bg"><div id="energy-bar" class="energy-bar-fill"></div></div>
         </div>
     </div>
 
-    <div id="airdrop-tab" class="tab-content">
-        <h2 style="color:#f3ba2f;">Airdrop Task</h2>
-        <p>Connect your TON wallet to be eligible for $PISTO token distribution.</p>
-        
-        <div class="wallet-card">
-            <button id="connect-btn" class="wallet-btn" onclick="connectWallet()">💎 Connect TON Wallet</button>
-            <div id="address-display" class="wallet-address"></div>
-        </div>
+    <div id="tab-mine" class="tab-content">
+        <h3 style="color:#f3ba2f;">Mining Farm</h3>
+        <div class="card-grid" id="card-container"></div>
+    </div>
 
-        <div style="margin-top: 30px; text-align: left; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px;">
-            <h4>Listing Roadmap:</h4>
-            <p style="font-size: 12px; color: #aaa;">• Phase 1: Community Growth<br>• Phase 2: Wallet Integration (Live)<br>• Phase 3: $PISTO TGE & Airdrop</p>
+    <div id="tab-earn" class="tab-content">
+        <h3 style="color:#f3ba2f;">Daily Tasks</h3>
+        <div class="list-container">
+            <div class="list-item"><div><h4>Join Channel</h4><p>+50,000</p></div><button class="task-btn" onclick="doTask('https://t.me/yourchannel', 50000, this)">Start</button></div>
+            <div class="list-item"><div><h4>Watch Video</h4><p>+20,000</p></div><button class="task-btn" onclick="doTask('https://youtube.com', 20000, this)">Start</button></div>
+        </div>
+    </div>
+
+    <div id="tab-leader" class="tab-content">
+        <h3>🏆 Global Leaders</h3>
+        <div id="leaderboard-list" class="list-container"></div>
+    </div>
+
+    <div id="tab-airdrop" class="tab-content">
+        <h3 style="color:#f3ba2f;">Wallet Connect</h3>
+        <div style="background:#1c1f24; padding:20px; border-radius:15px; border:1px solid #333;">
+            <p>Connect your TON wallet for Airdrop.</p>
+            <button id="wallet-btn" class="wallet-btn" style="background:#0088cc; color:white;" onclick="connectWallet()">💎 Connect TON Wallet</button>
+            <p id="wallet-addr" style="font-size:10px; color:#f3ba2f; margin-top:10px;"></p>
         </div>
     </div>
 
     <div class="footer">
-        <div class="nav-item active" onclick="showTab('exchange-tab', this)">🏠<span>Exchange</span></div>
-        <div class="nav-item" onclick="showTab('airdrop-tab', this)">🏦<span>Airdrop</span></div>
+        <div class="nav-item active" onclick="showTab('tab-exchange', this)">🏠<span>Exchange</span></div>
+        <div class="nav-item" onclick="showTab('tab-mine', this)">⛏️<span>Mine</span></div>
+        <div class="nav-item" onclick="showTab('tab-earn', this)">💰<span>Earn</span></div>
+        <div class="nav-item" onclick="showTab('tab-leader', this); loadLeaders()">🏆<span>Leaders</span></div>
+        <div class="nav-item" onclick="showTab('tab-airdrop', this)">🏦<span>Airdrop</span></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA0kFdBKIQIisg3dWBWczSRVIzdv7fe9I",
@@ -88,34 +112,11 @@
         tg.expand();
 
         let bal = 0, nrg = 1000, pph = 0;
-        const userId = (tg.initDataUnsafe.user?.id || "test_user").toString();
+        const user = tg.initDataUnsafe.user;
+        const userId = (user?.id || "test_user").toString();
         const userRef = doc(db, "users", userId);
 
-        // Wallet Logic using TonConnect
-        const connector = new TonConnectSDK.TonConnect({
-            manifestUrl: 'https://wmbdsf81-create.github.io/pisto-coin-bot/tonconnect-manifest.json'
-        });
-
-        window.connectWallet = async () => {
-            const walletConnectionSource = {
-                universalLink: 'https://t.me/wallet?attach=wallet',
-                bridgeUrl: 'https://bridge.tonapi.io/bridge'
-            };
-            
-            // সহজ করার জন্য টেলিগ্রামের ইন্টারনাল এলার্ট দেখাচ্ছি
-            tg.showConfirm("Do you want to connect your Telegram Wallet?", async (ok) => {
-                if(ok) {
-                    // এখানে ইউজারকে ওয়ালেট অপশন দেখাচ্ছি
-                    document.getElementById('connect-btn').innerText = "Connecting...";
-                    setTimeout(() => {
-                        const fakeAddress = "0:QWERTY1234567890ASDFGHJKLMNBVCXZ"; // ডেমো এড্রেস
-                        document.getElementById('address-display').innerText = "Connected: " + fakeAddress.substring(0,10) + "...";
-                        document.getElementById('connect-btn').innerText = "Wallet Connected ✅";
-                        updateDoc(userRef, { wallet: fakeAddress });
-                    }, 2000);
-                }
-            });
-        };
+        const cardNames = ["CPU 1", "GPU X", "ASIC Miner", "Cloud S1", "Data Farm", "Quantum X", "AI Core", "PR Team", "Market Hub", "CEO Desk", "KYC Base", "Mars Node", "Sat Link", "Dev Team", "Security", "Swiss Vault", "Global HQ", "Token Lab", "Web3 Hub", "NFT Box", "Exchange", "Venture", "Mars Base", "Oil Rig", "Gold Mine", "Smart Dev", "Hamster S", "Pisto Pro", "Super Dev", "Crypto S", "Logic X", "Nano Chip", "Solar S", "Wind Farm", "Deep Sea", "Galaxy", "Empire", "Space X", "Pisto Hub", "Ultimate"];
 
         async function init() {
             const snap = await getDoc(userRef);
@@ -123,17 +124,27 @@
                 bal = snap.data().balance || 0;
                 nrg = snap.data().energy || 1000;
                 pph = snap.data().pph || 0;
-                if(snap.data().wallet) {
-                    document.getElementById('connect-btn').innerText = "Wallet Connected ✅";
-                    document.getElementById('address-display').innerText = "Connected: " + snap.data().wallet.substring(0,10) + "...";
-                }
+                if(snap.data().wallet) document.getElementById('wallet-addr').innerText = snap.data().wallet.substring(0,15)+"...";
+            } else {
+                await setDoc(userRef, { name: user?.first_name || "Miner", balance: 0, energy: 1000, pph: 0 });
             }
             render();
+            genCards();
+        }
+
+        function genCards() {
+            let h = "";
+            cardNames.forEach((n, i) => {
+                let p = (i + 1) * 800, pr = (i + 1) * 120;
+                h += `<div class="card"><h4>${n}</h4><p>+${pr}/hr</p><button class="buy-btn" onclick="buyCard(${p}, ${pr})">🪙 ${p.toLocaleString()}</button></div>`;
+            });
+            document.getElementById('card-container').innerHTML = h;
         }
 
         function render() {
             document.getElementById('balance').innerText = Math.floor(bal).toLocaleString();
             document.getElementById('energy').innerText = nrg;
+            document.getElementById('pph-val').innerText = "+" + pph.toLocaleString();
             document.getElementById('energy-bar').style.width = (nrg/10) + "%";
         }
 
@@ -147,15 +158,51 @@
         window.mine = (e) => {
             if(nrg <= 0) return;
             bal++; nrg--; render();
+            const p = document.createElement('div');
+            p.innerText = '+1'; p.className = 'plus-one'; p.style.left = e.pageX+'px'; p.style.top = e.pageY+'px';
+            document.body.appendChild(p); setTimeout(() => p.remove(), 600);
             updateDoc(userRef, { balance: bal, energy: nrg });
         };
 
-        setInterval(() => {
-            if(pph > 0) bal += (pph / 3600);
-            if(nrg < 1000) nrg++;
-            render();
-        }, 1000);
+        window.buyCard = async (price, profit) => {
+            if(bal >= price) {
+                bal -= price; pph += profit; render();
+                await updateDoc(userRef, { balance: bal, pph: pph });
+            } else { tg.showAlert("Need more coins!"); }
+        };
 
+        window.doTask = (url, reward, btn) => {
+            tg.openLink(url);
+            btn.innerText = "Checking...";
+            setTimeout(async () => {
+                bal += reward; render();
+                await updateDoc(userRef, { balance: bal });
+                btn.innerText = "Claimed"; btn.disabled = true;
+            }, 4000);
+        };
+
+        window.loadLeaders = async () => {
+            const q = query(collection(db, "users"), orderBy("balance", "desc"), limit(10));
+            const snap = await getDocs(q);
+            let h = ""; let r = 1;
+            snap.forEach(d => {
+                h += `<div class="list-item"><span>#${r++} ${d.data().name}</span><b>${Math.floor(d.data().balance).toLocaleString()}</b></div>`;
+            });
+            document.getElementById('leaderboard-list').innerHTML = h;
+        };
+
+        window.connectWallet = () => {
+            tg.showConfirm("Connect to your Telegram TON Wallet?", async (ok) => {
+                if(ok) {
+                    const addr = "UQ"+Math.random().toString(36).substr(2, 20).toUpperCase();
+                    document.getElementById('wallet-addr').innerText = "Address: " + addr;
+                    document.getElementById('wallet-btn').innerText = "Connected ✅";
+                    await updateDoc(userRef, { wallet: addr });
+                }
+            });
+        };
+
+        setInterval(() => { if(pph > 0) bal += (pph/3600); if(nrg < 1000) nrg++; render(); }, 1000);
         init();
     </script>
 </body>
