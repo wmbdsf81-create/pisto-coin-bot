@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pisto Coin - All Features</title>
+    <title>Pisto Coin - Elite Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
     <style>
@@ -18,26 +18,32 @@
         .main-balance { font-size: 36px; margin: 15px 0; font-weight: bold; display: flex; align-items: center; justify-content: center; }
         .main-balance img { width: 35px; margin-right: 8px; border-radius: 50%; }
 
-        /* Coin Section */
-        .coin-btn { width: 200px; height: 200px; border-radius: 50%; border: 8px solid #2c2f35; cursor: pointer; transition: transform 0.05s; }
+        .coin-btn { width: 200px; height: 200px; border-radius: 50%; border: 8px solid #2c2f35; cursor: pointer; transition: transform 0.05s; margin-bottom: 15px; }
         .coin-btn:active { transform: scale(0.92); }
-        .energy-bar-bg { width: 80%; height: 10px; background: #333; border-radius: 10px; margin: 10px auto; overflow: hidden; }
+
+        .powered-by { margin-top: 10px; font-weight: bold; }
+        .pisto-text { font-size: 24px; color: #f3ba2f; display: block; }
+        .bd-text { font-size: 14px; color: #fff; opacity: 0.8; display: block; }
+
+        .energy-bar-bg { width: 80%; height: 10px; background: #333; border-radius: 10px; margin: 15px auto; overflow: hidden; }
         .energy-bar-fill { width: 100%; height: 100%; background: #f3ba2f; }
 
-        /* Card Grid */
-        .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .card { background: #1c1f24; padding: 12px; border-radius: 12px; border: 1px solid #333; text-align: left; }
-        .card h4 { margin: 0; font-size: 12px; white-space: nowrap; overflow: hidden; }
+        /* Cards Style */
+        .category-title { color: #f3ba2f; text-align: left; margin: 20px 0 10px; border-left: 4px solid #f3ba2f; padding-left: 10px; font-size: 16px; }
+        .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .card { background: #1c1f24; padding: 12px; border-radius: 12px; border: 1px solid #333; text-align: left; position: relative; }
+        .card.locked { opacity: 0.5; filter: grayscale(1); }
+        
         .buy-btn, .task-btn, .wallet-btn { background: #f3ba2f; color: #000; border: none; padding: 8px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 5px; }
+        .premier-btn { background: #0088cc; color: white; }
 
-        /* Tasks & Leaders */
         .list-container { background: #1c1f24; border-radius: 12px; margin-top: 10px; text-align: left; }
         .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #333; }
         
-        /* Footer */
         .footer { position: fixed; bottom: 0; width: 100%; background: #1c1f24; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; z-index: 1000; }
         .nav-item { font-size: 10px; color: #888; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
         .nav-item.active { color: #f3ba2f; }
+        
         .plus-one { position: absolute; color: #f3ba2f; font-size: 26px; font-weight: bold; animation: floatUp 0.6s forwards; pointer-events: none; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
     </style>
@@ -52,6 +58,7 @@
     <div id="tab-exchange" class="tab-content active-tab">
         <div class="main-balance"><img src="https://i.ibb.co/X7f3nTB/pisto-coin.jpg"> <span id="balance">0</span></div>
         <img src="https://i.ibb.co/X7f3nTB/pisto-coin.jpg" class="coin-btn" onclick="mine(event)">
+        <div class="powered-by"><span class="pisto-text">Pisto Coin</span><span class="bd-text">Powered by Bangladesh 🇧🇩</span></div>
         <div style="margin-top: 20px;">
             <div>⚡ <span id="energy">1000</span> / 1000</div>
             <div class="energy-bar-bg"><div id="energy-bar" class="energy-bar-fill"></div></div>
@@ -59,15 +66,25 @@
     </div>
 
     <div id="tab-mine" class="tab-content">
-        <h3 style="color:#f3ba2f;">Mining Farm</h3>
-        <div class="card-grid" id="card-container"></div>
+        <div class="category-title">⭐ Premier Cards (TON)</div>
+        <div class="card-grid" id="premier-container"></div>
+        <div class="category-title">⛏️ Standard Farm</div>
+        <div class="card-grid" id="standard-container"></div>
     </div>
 
     <div id="tab-earn" class="tab-content">
-        <h3 style="color:#f3ba2f;">Daily Tasks</h3>
-        <div class="list-container">
-            <div class="list-item"><div><h4>Join Channel</h4><p>+50,000</p></div><button class="task-btn" onclick="doTask('https://t.me/yourchannel', 50000, this)">Start</button></div>
-            <div class="list-item"><div><h4>Watch Video</h4><p>+20,000</p></div><button class="task-btn" onclick="doTask('https://youtube.com', 20000, this)">Start</button></div>
+        <div style="background: #1c1f24; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #f3ba2f;">
+            <h4>🤝 Refer & Earn</h4>
+            <p style="font-size: 11px; color:#aaa;">Get 10% bonus when your friend buys Premier Cards!</p>
+            <button class="buy-btn" onclick="shareRef()">Invite Friend</button>
+        </div>
+        <div style="background: #1c1f24; padding: 10px; border-radius: 12px; margin-bottom: 15px;">
+            <p id="daily-text">Daily Reward Available!</p>
+            <button id="claim-btn" class="task-btn" onclick="claimDaily()">Claim 10k</button>
+        </div>
+        <h3 style="color:#f3ba2f;">Tasks</h3>
+        <div class="list-container" id="task-list">
+            <div class="list-item"><div><h4>Join TG</h4><p>+50,000</p></div><button class="task-btn" onclick="doTask('https://t.me/yourchannel', 50000, this)">Start</button></div>
         </div>
     </div>
 
@@ -77,9 +94,8 @@
     </div>
 
     <div id="tab-airdrop" class="tab-content">
-        <h3 style="color:#f3ba2f;">Wallet Connect</h3>
-        <div style="background:#1c1f24; padding:20px; border-radius:15px; border:1px solid #333;">
-            <p>Connect your TON wallet for Airdrop.</p>
+        <h3 style="color:#f3ba2f;">Wallet</h3>
+        <div style="background:#1c1f24; padding:20px; border-radius:12px;">
             <button id="wallet-btn" class="wallet-btn" style="background:#0088cc; color:white;" onclick="connectWallet()">💎 Connect TON Wallet</button>
             <p id="wallet-addr" style="font-size:10px; color:#f3ba2f; margin-top:10px;"></p>
         </div>
@@ -111,95 +127,113 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let bal = 0, nrg = 1000, pph = 0;
+        let bal = 0, nrg = 1000, pph = 0, purchasedPremier = [];
         const user = tg.initDataUnsafe.user;
         const userId = (user?.id || "test_user").toString();
         const userRef = doc(db, "users", userId);
+        const refBy = new URLSearchParams(window.location.search).get('start');
 
-        const cardNames = ["CPU 1", "GPU X", "ASIC Miner", "Cloud S1", "Data Farm", "Quantum X", "AI Core", "PR Team", "Market Hub", "CEO Desk", "KYC Base", "Mars Node", "Sat Link", "Dev Team", "Security", "Swiss Vault", "Global HQ", "Token Lab", "Web3 Hub", "NFT Box", "Exchange", "Venture", "Mars Base", "Oil Rig", "Gold Mine", "Smart Dev", "Hamster S", "Pisto Pro", "Super Dev", "Crypto S", "Logic X", "Nano Chip", "Solar S", "Wind Farm", "Deep Sea", "Galaxy", "Empire", "Space X", "Pisto Hub", "Ultimate"];
+        const premierCards = [
+            { id: "p1", name: "BD Whale", price: "1 TON", profit: 50000, type: "ton" },
+            { id: "p2", name: "Pisto Master", price: "1.5 TON", profit: 80000, type: "ton", req: "p1" },
+            { id: "p3", name: "Millionaire", price: "Free", profit: 100000, type: "balance", reqVal: 1000000 },
+            { id: "p4", name: "Billionaire", price: "Free", profit: 500000, type: "balance", reqVal: 500000000 }
+        ];
 
         async function init() {
             const snap = await getDoc(userRef);
             if(snap.exists()){
-                bal = snap.data().balance || 0;
-                nrg = snap.data().energy || 1000;
-                pph = snap.data().pph || 0;
-                if(snap.data().wallet) document.getElementById('wallet-addr').innerText = snap.data().wallet.substring(0,15)+"...";
+                const d = snap.data();
+                bal = d.balance || 0; nrg = d.energy || 1000; pph = d.pph || 0; purchasedPremier = d.premier || [];
             } else {
-                await setDoc(userRef, { name: user?.first_name || "Miner", balance: 0, energy: 1000, pph: 0 });
+                await setDoc(userRef, { name: user?.first_name || "Miner", balance: 0, energy: 1000, pph: 0, referredBy: refBy });
             }
-            render();
-            genCards();
+            render(); genStandard(); genPremier();
         }
 
-        function genCards() {
-            let h = "";
-            cardNames.forEach((n, i) => {
-                let p = (i + 1) * 800, pr = (i + 1) * 120;
-                h += `<div class="card"><h4>${n}</h4><p>+${pr}/hr</p><button class="buy-btn" onclick="buyCard(${p}, ${pr})">🪙 ${p.toLocaleString()}</button></div>`;
+        window.shareRef = () => {
+            const link = `https://t.me/Pisto_Coin_Bot?start=${userId}`;
+            tg.openTelegramLink(`https://t.me/share/url?url=${link}&text=Join Pisto Coin and earn together!`);
+        };
+
+        window.buyPremier = async (id, profit) => {
+            tg.showConfirm(`Confirm purchase?`, async (ok) => {
+                if(ok) {
+                    pph += profit; purchasedPremier.push(id);
+                    await updateDoc(userRef, { pph: pph, premier: purchasedPremier });
+                    // Referral Bonus Logic
+                    const snap = await getDoc(userRef);
+                    if(snap.data().referredBy) {
+                        const bossRef = doc(db, "users", snap.data().referredBy);
+                        const bossSnap = await getDoc(bossRef);
+                        if(bossSnap.exists()) await updateDoc(bossRef, { balance: bossSnap.data().balance + 50000 });
+                    }
+                    render(); genPremier();
+                }
             });
-            document.getElementById('card-container').innerHTML = h;
+        };
+
+        function genPremier() {
+            let h = "";
+            premierCards.forEach(c => {
+                let isBought = purchasedPremier.includes(c.id);
+                let isLocked = (c.type === "balance" && bal < c.reqVal) || (c.req && !purchasedPremier.includes(c.req));
+                h += `<div class="card ${isLocked && !isBought ? 'locked' : ''}">
+                    <h4>${c.name}</h4><p>+${c.profit}/hr</p>
+                    ${isBought ? '<button class="buy-btn" disabled>Owned</button>' : 
+                      isLocked ? '<span>🔒 Locked</span>' : `<button class="buy-btn premier-btn" onclick="buyPremier('${c.id}', ${c.profit})">${c.price}</button>`}
+                </div>`;
+            });
+            document.getElementById('premier-container').innerHTML = h;
         }
 
-        function render() {
+        function genStandard() {
+            let h = "";
+            for(let i=1; i<=10; i++) {
+                let p = i*1000, pr = i*150;
+                h += `<div class="card"><h4>Miner V${i}</h4><p>+${pr}/hr</p><button class="buy-btn" onclick="buyCard(${p}, ${pr})">🪙 ${p}</button></div>`;
+            }
+            document.getElementById('standard-container').innerHTML = h;
+        }
+
+        window.buyCard = async (p, pr) => {
+            if(bal >= p) { bal -= p; pph += pr; render(); await updateDoc(userRef, { balance: bal, pph: pph }); }
+            else { tg.showAlert("Low balance!"); }
+        };
+
+        window.render = () => {
             document.getElementById('balance').innerText = Math.floor(bal).toLocaleString();
             document.getElementById('energy').innerText = nrg;
             document.getElementById('pph-val').innerText = "+" + pph.toLocaleString();
             document.getElementById('energy-bar').style.width = (nrg/10) + "%";
-        }
+        };
 
         window.showTab = (id, el) => {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(id).classList.add('active-tab');
-            el.classList.add('active');
+            document.getElementById(id).classList.add('active-tab'); el.classList.add('active');
         };
 
         window.mine = (e) => {
             if(nrg <= 0) return;
             bal++; nrg--; render();
-            const p = document.createElement('div');
-            p.innerText = '+1'; p.className = 'plus-one'; p.style.left = e.pageX+'px'; p.style.top = e.pageY+'px';
+            const p = document.createElement('div'); p.innerText = '+1'; p.className = 'plus-one';
+            p.style.left = e.pageX+'px'; p.style.top = e.pageY+'px';
             document.body.appendChild(p); setTimeout(() => p.remove(), 600);
             updateDoc(userRef, { balance: bal, energy: nrg });
         };
 
-        window.buyCard = async (price, profit) => {
-            if(bal >= price) {
-                bal -= price; pph += profit; render();
-                await updateDoc(userRef, { balance: bal, pph: pph });
-            } else { tg.showAlert("Need more coins!"); }
-        };
-
-        window.doTask = (url, reward, btn) => {
-            tg.openLink(url);
-            btn.innerText = "Checking...";
-            setTimeout(async () => {
-                bal += reward; render();
-                await updateDoc(userRef, { balance: bal });
-                btn.innerText = "Claimed"; btn.disabled = true;
-            }, 4000);
+        window.claimDaily = async () => {
+            bal += 10000; render(); tg.showAlert("10,000 Coins Claimed!");
+            await updateDoc(userRef, { balance: bal });
         };
 
         window.loadLeaders = async () => {
             const q = query(collection(db, "users"), orderBy("balance", "desc"), limit(10));
             const snap = await getDocs(q);
             let h = ""; let r = 1;
-            snap.forEach(d => {
-                h += `<div class="list-item"><span>#${r++} ${d.data().name}</span><b>${Math.floor(d.data().balance).toLocaleString()}</b></div>`;
-            });
+            snap.forEach(d => { h += `<div class="list-item"><span>#${r++} ${d.data().name}</span><b>${Math.floor(d.data().balance).toLocaleString()}</b></div>`; });
             document.getElementById('leaderboard-list').innerHTML = h;
-        };
-
-        window.connectWallet = () => {
-            tg.showConfirm("Connect to your Telegram TON Wallet?", async (ok) => {
-                if(ok) {
-                    const addr = "UQ"+Math.random().toString(36).substr(2, 20).toUpperCase();
-                    document.getElementById('wallet-addr').innerText = "Address: " + addr;
-                    document.getElementById('wallet-btn').innerText = "Connected ✅";
-                    await updateDoc(userRef, { wallet: addr });
-                }
-            });
         };
 
         setInterval(() => { if(pph > 0) bal += (pph/3600); if(nrg < 1000) nrg++; render(); }, 1000);
