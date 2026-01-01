@@ -3,57 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pisto Coin - Full Hamster Style</title>
+    <title>Pisto Coin - Pro Miner</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: #000; color: white; text-align: center; font-family: 'Arial', sans-serif; margin: 0; padding: 0; user-select: none; }
-        .header { display: flex; justify-content: space-between; padding: 15px; background: #1c1f24; border-bottom: 2px solid #f3ba2f; }
-        .stat-box { font-size: 14px; color: #aaa; }
-        .stat-value { color: #f3ba2f; font-weight: bold; font-size: 18px; }
+        body { background: #0b0e11; color: white; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; user-select: none; }
+        .header { display: flex; justify-content: space-between; padding: 15px; background: #1c1f24; border-bottom: 2px solid #f3ba2f; position: sticky; top: 0; z-index: 100; }
+        .stat-label { font-size: 12px; color: #888; }
+        .stat-value { color: #f3ba2f; font-weight: bold; font-size: 16px; }
         
-        .main-balance { font-size: 40px; margin: 30px 0; font-weight: bold; color: #fff; }
-        
-        .coin-section { position: relative; display: flex; justify-content: center; margin-top: 20px; }
-        .coin-btn { width: 240px; height: 240px; border-radius: 50%; box-shadow: 0 0 50px #f3ba2f55; cursor: pointer; transition: transform 0.05s; }
+        .tab-content { display: none; padding: 20px; height: 75vh; overflow-y: auto; }
+        .active-tab { display: block; }
+
+        .main-balance { font-size: 40px; margin: 20px 0; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .main-balance img { width: 35px; margin-right: 10px; }
+
+        .coin-btn { width: 220px; height: 220px; border-radius: 50%; border: 10px solid #2c2f35; cursor: pointer; transition: transform 0.05s; }
         .coin-btn:active { transform: scale(0.95); }
 
-        .energy-section { margin-top: 30px; padding: 0 20px; }
-        .energy-bar-bg { width: 100%; height: 12px; background: #333; border-radius: 10px; margin-top: 5px; overflow: hidden; }
-        .energy-bar-fill { width: 100%; height: 100%; background: linear-gradient(to right, #f3ba2f, #ffea00); transition: width 0.2s; }
-        .energy-text { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+        /* কার্ড ডিজাইন */
+        .card-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .card { background: #1c1f24; padding: 15px; border-radius: 15px; border: 1px solid #333; text-align: left; }
+        .card h4 { margin: 0; font-size: 14px; color: #fff; }
+        .card p { margin: 5px 0; font-size: 12px; color: #888; }
+        .buy-btn { background: #f3ba2f; color: #000; border: none; padding: 8px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .buy-btn:disabled { background: #555; cursor: not-allowed; }
 
         .footer { position: fixed; bottom: 0; width: 100%; background: #1c1f24; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; }
-        .nav-item { font-size: 12px; color: #888; text-decoration: none; cursor: pointer; }
+        .nav-item { font-size: 11px; color: #888; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
         .nav-item.active { color: #f3ba2f; }
+        .nav-icon { font-size: 20px; margin-bottom: 3px; }
 
-        .plus-one { position: absolute; color: #f3ba2f; font-size: 28px; font-weight: bold; animation: floatUp 0.8s ease-out forwards; pointer-events: none; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
+        .plus-one { position: absolute; color: #f3ba2f; font-size: 26px; font-weight: bold; animation: floatUp 0.7s forwards; pointer-events: none; z-index: 1000; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="stat-box">Profit per hour<br><span class="stat-value">+0</span></div>
-        <div class="stat-box">Pisto Rank<br><span class="stat-value" style="color:white">Bronze</span></div>
+        <div><span class="stat-label">Profit per hour</span><br><span id="pph-val" class="stat-value">+0</span></div>
+        <div><span class="stat-label">Rank</span><br><span class="stat-value" style="color:white">Bronze</span></div>
     </div>
 
-    <div class="main-balance">🪙 <span id="balance">0</span></div>
-
-    <div class="coin-section">
-        <img src="https://i.ibb.co/Kz9P3Zy/pisto-coin.jpg" class="coin-btn" onclick="mine(event)">
+    <div id="exchange-tab" class="tab-content active-tab">
+        <div class="main-balance"><img src="https://i.ibb.co/X7f3nTB/pisto-coin.jpg"> <span id="balance">0</span></div>
+        <div style="position: relative; display: inline-block;">
+            <img src="https://i.ibb.co/X7f3nTB/pisto-coin.jpg" class="coin-btn" onclick="mine(event)">
+        </div>
+        <div style="margin-top: 30px;">
+            <div style="font-weight: bold;">⚡ <span id="energy">1000</span> / 1000</div>
+            <div style="width: 80%; height: 10px; background: #333; border-radius: 10px; margin: 10px auto; overflow: hidden;">
+                <div id="energy-bar" style="width: 100%; height: 100%; background: #f3ba2f; transition: width 0.2s;"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="energy-section">
-        <div class="energy-text">⚡ <span id="energy">1000</span> / 1000</div>
-        <div class="energy-bar-bg"><div id="energy-bar" class="energy-bar-fill"></div></div>
+    <div id="mine-tab" class="tab-content">
+        <h3>Mining Cards</h3>
+        <div class="card-container">
+            <div class="card">
+                <h4>Hamster Bot</h4>
+                <p>Profit: +50/hr</p>
+                <p>Price: 🪙 500</p>
+                <button class="buy-btn" onclick="buyCard(500, 50)">Buy</button>
+            </div>
+            <div class="card">
+                <h4>Pisto Team</h4>
+                <p>Profit: +120/hr</p>
+                <p>Price: 🪙 1,200</p>
+                <button class="buy-btn" onclick="buyCard(1200, 120)">Buy</button>
+            </div>
+            <div class="card">
+                <h4>Mining Farm</h4>
+                <p>Profit: +500/hr</p>
+                <p>Price: 🪙 5,000</p>
+                <button class="buy-btn" onclick="buyCard(5000, 500)">Buy</button>
+            </div>
+            <div class="card">
+                <h4>CEO Office</h4>
+                <p>Profit: +2,000/hr</p>
+                <p>Price: 🪙 20,000</p>
+                <button class="buy-btn" onclick="buyCard(20000, 2000)">Buy</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="friends-tab" class="tab-content">
+        <h3>Invite Friends</h3>
+        <p>Coming Soon!</p>
     </div>
 
     <div class="footer">
-        <div class="nav-item active">🏠 Exchange</div>
-        <div class="nav-item">⛏️ Mine</div>
-        <div class="nav-item">👥 Friends</div>
-        <div class="nav-item">💰 Earn</div>
-        <div class="nav-item">🏦 Airdrop</div>
+        <div class="nav-item active" onclick="showTab('exchange-tab', this)"><span class="nav-icon">🏠</span>Exchange</div>
+        <div class="nav-item" onclick="showTab('mine-tab', this)"><span class="nav-icon">⛏️</span>Mine</div>
+        <div class="nav-item" onclick="showTab('friends-tab', this)"><span class="nav-icon">👥</span>Friends</div>
     </div>
 
     <script type="module">
@@ -74,60 +116,68 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let balance = 0;
-        let energy = 1000;
-        const maxEnergy = 1000;
+        let bal = 0, nrg = 1000, pph = 0;
+        const userId = (tg.initDataUnsafe.user?.id || "test_user").toString();
+        const userRef = doc(db, "users", userId);
 
-        const userId = tg.initDataUnsafe.user?.id || "test_user";
-        const userRef = doc(db, "users", userId.toString());
-
-        async function load() {
-            const docSnap = await getDoc(userRef);
-            if (docSnap.exists()) {
-                balance = docSnap.data().balance || 0;
-                energy = docSnap.data().energy || 1000;
-                updateUI();
+        async function loadData() {
+            const snap = await getDoc(userRef);
+            if(snap.exists()){
+                bal = snap.data().balance || 0;
+                nrg = snap.data().energy || 1000;
+                pph = snap.data().pph || 0;
             } else {
-                await setDoc(userRef, { balance: 0, energy: 1000 });
+                await setDoc(userRef, { balance: 0, energy: 1000, pph: 0 });
             }
+            render();
         }
 
-        function updateUI() {
-            document.getElementById('balance').innerText = balance.toLocaleString();
-            document.getElementById('energy').innerText = energy;
-            document.getElementById('energy-bar').style.width = (energy / maxEnergy * 100) + "%";
+        function render() {
+            document.getElementById('balance').innerText = Math.floor(bal).toLocaleString();
+            document.getElementById('energy').innerText = nrg;
+            document.getElementById('pph-val').innerText = "+" + pph;
+            document.getElementById('energy-bar').style.width = (nrg/10) + "%";
         }
 
-        window.mine = async function(event) {
-            if (energy <= 0) return;
+        window.showTab = (tabId, el) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active-tab');
+            el.classList.add('active');
+        }
 
-            balance++;
-            energy--;
-            updateUI();
-
-            // Animation
-            const plus = document.createElement('div');
-            plus.innerText = '+1';
-            plus.className = 'plus-one';
-            plus.style.left = event.clientX - 20 + 'px';
-            plus.style.top = event.clientY - 40 + 'px';
-            document.body.appendChild(plus);
-            setTimeout(() => plus.remove(), 800);
-
-            // Sync with Firebase
-            await updateDoc(userRef, { balance: increment(1), energy: energy });
+        window.mine = (e) => {
+            if(nrg <= 0) return;
+            bal++; nrg--;
+            render();
+            const p = document.createElement('div');
+            p.innerText = '+1'; p.className = 'plus-one';
+            p.style.left = e.pageX + 'px'; p.style.top = e.pageY + 'px';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 700);
+            updateDoc(userRef, { balance: bal, energy: nrg });
         };
 
-        // Energy Recovery (অটোমেটিক শক্তি বাড়বে)
-        setInterval(() => {
-            if (energy < maxEnergy) {
-                energy++;
-                updateUI();
-                updateDoc(userRef, { energy: energy });
-            }
-        }, 3000); // প্রতি ৩ সেকেন্ডে ১ করে শক্তি বাড়বে
+        window.buyCard = async (price, profit) => {
+            if(bal >= price) {
+                bal -= price;
+                pph += profit;
+                render();
+                await updateDoc(userRef, { balance: bal, pph: pph });
+                alert("Card Purchased! Your profit increased.");
+            } else {
+                alert("Not enough coins!");
+           }
+        };
 
-        load();
+        // Auto profit and energy
+        setInterval(() => {
+            if(pph > 0) { bal += (pph / 3600); }
+            if(nrg < 1000) { nrg++; }
+            render();
+        }, 1000);
+
+        loadData();
     </script>
 </body>
 </html>
