@@ -3,102 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pisto Coin - Ultra</title>
+    <title>Pisto Coin - Leaderboard Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { background: #0b0e11; color: white; text-align: center; font-family: 'Arial', sans-serif; margin: 0; padding: 0; user-select: none; }
         .header { display: flex; justify-content: space-between; padding: 15px; background: #1c1f24; border-bottom: 2px solid #f3ba2f; position: sticky; top: 0; z-index: 100; }
-        .stat-label { font-size: 11px; color: #888; text-transform: uppercase; }
+        .stat-label { font-size: 11px; color: #888; }
         .stat-value { color: #f3ba2f; font-weight: bold; font-size: 16px; }
         
         .tab-content { display: none; padding: 20px; height: 78vh; overflow-y: auto; padding-bottom: 80px; }
         .active-tab { display: block; }
 
+        .profile-card { background: linear-gradient(135deg, #1c1f24, #2c2f35); padding: 15px; border-radius: 15px; margin-bottom: 20px; display: flex; align-items: center; text-align: left; border: 1px solid #333; }
+        .profile-img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #f3ba2f; margin-right: 12px; }
+        
         .main-balance { font-size: 42px; margin: 15px 0; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-        .main-balance img { width: 40px; margin-right: 10px; border-radius: 50%; }
+        .main-balance img { width: 38px; margin-right: 8px; border-radius: 50%; }
 
-        /* Coin Section */
-        .coin-btn { width: 230px; height: 230px; border-radius: 50%; border: 8px solid #2c2f35; cursor: pointer; transition: transform 0.05s; box-shadow: 0 0 40px rgba(243, 186, 47, 0.2); }
+        .coin-btn { width: 220px; height: 220px; border-radius: 50%; border: 8px solid #2c2f35; cursor: pointer; transition: transform 0.05s; box-shadow: 0 0 30px rgba(243, 186, 47, 0.2); }
         .coin-btn:active { transform: scale(0.92); }
 
-        /* Energy Bar */
-        .energy-section { margin-top: 25px; }
-        .energy-bar-bg { width: 85%; height: 12px; background: #333; border-radius: 10px; margin: 10px auto; overflow: hidden; border: 1px solid #444; }
-        .energy-bar-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #f3ba2f, #ffea00); transition: width 0.2s; }
+        /* Leaderboard Style */
+        .leaderboard-list { background: #1c1f24; border-radius: 15px; overflow: hidden; margin-top: 15px; text-align: left; }
+        .leader-item { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #333; align-items: center; }
+        .leader-item:last-child { border-bottom: none; }
+        .rank { font-weight: bold; color: #f3ba2f; width: 25px; }
+        .user-name { flex: 1; margin-left: 10px; font-size: 14px; }
+        .user-score { font-weight: bold; color: #fff; }
 
-        /* Card & Task Styles */
-        .card-container, .task-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
-        .card, .task-item { background: #1c1f24; padding: 12px; border-radius: 15px; border: 1px solid #333; text-align: left; }
-        .card h4, .task-item h4 { margin: 0; font-size: 13px; color: #fff; }
-        .buy-btn, .task-btn { background: #f3ba2f; color: #000; border: none; padding: 8px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 12px; }
-        
-        .task-list { grid-template-columns: 1fr; }
-        .task-item { display: flex; justify-content: space-between; align-items: center; }
-
-        /* Footer Navigation */
         .footer { position: fixed; bottom: 0; width: 100%; background: #1c1f24; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #333; z-index: 1000; }
-        .nav-item { font-size: 10px; color: #888; cursor: pointer; display: flex; flex-direction: column; align-items: center; opacity: 0.7; }
-        .nav-item.active { color: #f3ba2f; opacity: 1; }
-        .nav-icon { font-size: 22px; margin-bottom: 4px; }
-
-        .plus-one { position: absolute; color: #f3ba2f; font-size: 28px; font-weight: bold; animation: floatUp 0.7s ease-out forwards; pointer-events: none; z-index: 999; }
+        .nav-item { font-size: 10px; color: #888; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+        .nav-item.active { color: #f3ba2f; }
+        .nav-icon { font-size: 20px; margin-bottom: 4px; }
+        
+        .plus-one { position: absolute; color: #f3ba2f; font-size: 28px; font-weight: bold; animation: floatUp 0.7s forwards; pointer-events: none; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
+        
+        .buy-btn, .task-btn { background: #f3ba2f; color: #000; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div><span class="stat-label">Profit per hour</span><br><span id="pph-val" class="stat-value">+0</span></div>
-        <div><span class="stat-label">Pisto Rank</span><br><span id="rank-name" class="stat-value" style="color:white">Bronze</span></div>
+        <div><span class="stat-label">Profit/hr</span><br><span id="pph-val" class="stat-value">+0</span></div>
+        <div><span class="stat-label">Rank</span><br><span id="rank-name" class="stat-value" style="color:white">Bronze</span></div>
     </div>
 
     <div id="exchange-tab" class="tab-content active-tab">
-        <div class="main-balance"><img src="https://i.ibb.co/X7f3nTB/pisto-coin.jpg"> <span id="balance">0</span></div>
-        <div style="position: relative; display: inline-block;">
-            <img src="https://i.ibb.co/X7f3nTB/pisto-coin.jpg" class="coin-btn" onclick="mine(event)">
+        <div class="profile-card">
+            <img id="user-photo" src="https://i.ibb.co/X7f3nTB/pisto-coin.jpg" class="profile-img">
+            <div>
+                <h3 id="user-name" style="margin:0; font-size:15px;">Pisto Miner</h3>
+                <p style="margin:0; font-size:11px; color:#f3ba2f;">Level 1: Wood</p>
+            </div>
         </div>
-        <div class="energy-section">
-            <div style="font-weight: bold; font-size: 18px;">⚡ <span id="energy">1000</span> / 1000</div>
-            <div class="energy-bar-bg"><div id="energy-bar" class="energy-bar-fill"></div></div>
+        <div class="main-balance"><img src="https://i.ibb.co/X7f3nTB/pisto-coin.jpg"> <span id="balance">0</span></div>
+        <img src="https://i.ibb.co/X7f3nTB/pisto-coin.jpg" class="coin-btn" onclick="mine(event)">
+        <div style="margin-top: 20px;">
+            <div>⚡ <span id="energy">1000</span> / 1000</div>
+            <div style="width:80%; height:10px; background:#333; border-radius:10px; margin:10px auto; overflow:hidden;">
+                <div id="energy-bar" style="width:100%; height:100%; background:#f3ba2f;"></div>
+            </div>
         </div>
     </div>
 
     <div id="mine-tab" class="tab-content">
-        <h3 style="color:#f3ba2f">Mining Farm</h3>
-        <div class="card-container">
-            <div class="card"><h4>CEO Card</h4><p style="font-size:10px">Profit: +100/hr</p><p style="color:#f3ba2f">🪙 1,000</p><button class="buy-btn" onclick="buyCard(1000, 100)">Upgrade</button></div>
-            <div class="card"><h4>IT Team</h4><p style="font-size:10px">Profit: +250/hr</p><p style="color:#f3ba2f">🪙 2,500</p><button class="buy-btn" onclick="buyCard(2500, 250)">Upgrade</button></div>
-            <div class="card"><h4>Marketing</h4><p style="font-size:10px">Profit: +600/hr</p><p style="color:#f3ba2f">🪙 5,000</p><button class="buy-btn" onclick="buyCard(5000, 600)">Upgrade</button></div>
-            <div class="card"><h4>Crypto Rig</h4><p style="font-size:10px">Profit: +1.5k/hr</p><p style="color:#f3ba2f">🪙 12,000</p><button class="buy-btn" onclick="buyCard(12000, 1500)">Upgrade</button></div>
+        <h3>Boost Your Income</h3>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div style="background:#1c1f24; padding:10px; border-radius:10px;">
+                <p style="font-size:12px;">Mining Kit</p>
+                <p style="color:#f3ba2f;">+50/hr</p>
+                <button class="buy-btn" onclick="buyCard(500, 50)">500 🪙</button>
+            </div>
+            <div style="background:#1c1f24; padding:10px; border-radius:10px;">
+                <p style="font-size:12px;">GPU Server</p>
+                <p style="color:#f3ba2f;">+200/hr</p>
+                <button class="buy-btn" onclick="buyCard(2000, 200)">2k 🪙</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="leader-tab" class="tab-content">
+        <h3 style="color:#f3ba2f;">🏆 Top Miners</h3>
+        <div class="leaderboard-list" id="leaderboard-container">
+            <p style="padding:20px; text-align:center;">Loading ranking...</p>
         </div>
     </div>
 
     <div id="friends-tab" class="tab-content">
-        <h3 style="color:#f3ba2f">Invite Friends</h3>
-        <div style="background:#1c1f24; padding:20px; border-radius:15px; margin-top:20px;">
-            <p>Invite friends and get 🪙 5,000 for each!</p>
-            <button class="buy-btn" onclick="shareRef()">Invite a Friend</button>
-        </div>
-    </div>
-
-    <div id="earn-tab" class="tab-content">
-        <h3 style="color:#f3ba2f">Daily Tasks</h3>
-        <div class="task-list">
-            <div class="task-item"><div><h4>Join Channel</h4><p style="font-size:10px; color:#f3ba2f">+10,000 Coins</p></div><button class="task-btn" style="width:80px" onclick="doTask(10000)">Start</button></div>
-            <div class="task-item"><div><h4>Follow Twitter</h4><p style="font-size:10px; color:#f3ba2f">+5,000 Coins</p></div><button class="task-btn" style="width:80px" onclick="doTask(5000)">Start</button></div>
-        </div>
+        <h3>Invite & Earn</h3>
+        <p>Invite friends to get 5,000 Pisto coins!</p>
+        <button class="buy-btn" onclick="shareRef()">Invite a Friend</button>
     </div>
 
     <div class="footer">
         <div class="nav-item active" onclick="showTab('exchange-tab', this)"><span class="nav-icon">🏠</span>Exchange</div>
         <div class="nav-item" onclick="showTab('mine-tab', this)"><span class="nav-icon">⛏️</span>Mine</div>
+        <div class="nav-item" onclick="showTab('leader-tab', this); loadLeaderboard()"><span class="nav-icon">🏆</span>Leaders</div>
         <div class="nav-item" onclick="showTab('friends-tab', this)"><span class="nav-icon">👥</span>Friends</div>
-        <div class="nav-item" onclick="showTab('earn-tab', this)"><span class="nav-icon">💰</span>Earn</div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA0kFdBKIQIisg3dWBWczSRVIzdv7fe9I",
@@ -115,17 +122,24 @@
         tg.expand();
 
         let bal = 0, nrg = 1000, pph = 0;
-        const userId = (tg.initDataUnsafe.user?.id || "test_user").toString();
+        const user = tg.initDataUnsafe.user;
+        const userId = (user?.id || "test_user").toString();
+        const userName = user ? (user.first_name + (user.last_name ? " " + user.last_name : "")) : "Unknown Player";
         const userRef = doc(db, "users", userId);
 
-        async function loadData() {
+        if(user) {
+            document.getElementById('user-name').innerText = userName;
+            if(user.photo_url) document.getElementById('user-photo').src = user.photo_url;
+        }
+
+        async function load() {
             const snap = await getDoc(userRef);
-            if(snap.exists()){
+            if(snap.exists()) {
                 bal = snap.data().balance || 0;
                 nrg = snap.data().energy || 1000;
                 pph = snap.data().pph || 0;
             } else {
-                await setDoc(userRef, { balance: 0, energy: 1000, pph: 0 });
+                await setDoc(userRef, { name: userName, balance: 0, energy: 1000, pph: 0 });
             }
             render();
         }
@@ -135,9 +149,6 @@
             document.getElementById('energy').innerText = nrg;
             document.getElementById('pph-val').innerText = "+" + pph.toLocaleString();
             document.getElementById('energy-bar').style.width = (nrg/10) + "%";
-            
-            if(bal > 100000) document.getElementById('rank-name').innerText = "Silver";
-            if(bal > 500000) document.getElementById('rank-name').innerText = "Gold";
         }
 
         window.showTab = (tabId, el) => {
@@ -145,7 +156,7 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(tabId).classList.add('active-tab');
             el.classList.add('active');
-        }
+        };
 
         window.mine = (e) => {
             if(nrg <= 0) return;
@@ -159,24 +170,32 @@
             updateDoc(userRef, { balance: bal, energy: nrg });
         };
 
+        window.loadLeaderboard = async () => {
+            const q = query(collection(db, "users"), orderBy("balance", "desc"), limit(10));
+            const querySnap = await getDocs(q);
+            let html = "";
+            let rank = 1;
+            querySnap.forEach((doc) => {
+                const d = doc.data();
+                html += `<div class="leader-item">
+                    <span class="rank">${rank++}</span>
+                    <span class="user-name">${d.name || "Anonymous"}</span>
+                    <span class="user-score">${Math.floor(d.balance).toLocaleString()}</span>
+                </div>`;
+            });
+            document.getElementById('leaderboard-container').innerHTML = html;
+        };
+
         window.buyCard = async (price, profit) => {
             if(bal >= price) {
                 bal -= price; pph += profit;
                 render();
                 await updateDoc(userRef, { balance: bal, pph: pph });
-            } else { alert("Insufficient Balance!"); }
-        };
-
-        window.doTask = async (reward) => {
-            bal += reward;
-            render();
-            await updateDoc(userRef, { balance: bal });
-            alert("Task Completed! You got " + reward + " coins.");
+            } else { tg.showAlert("Not enough coins!"); }
         };
 
         window.shareRef = () => {
-            const link = `https://t.me/share/url?url=https://t.me/Pisto_Coin_Bot?start=${userId}&text=Join Pisto Coin and mine 🪙!`;
-            tg.openTelegramLink(link);
+            tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/Pisto_Coin_Bot?start=${userId}&text=Join me on Pisto Coin!`);
         };
 
         setInterval(() => {
@@ -185,7 +204,7 @@
             render();
         }, 1000);
 
-        loadData();
+        load();
     </script>
 </body>
 </html>
