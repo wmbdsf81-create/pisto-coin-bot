@@ -3,48 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pisto Coin - Full Hamster Style</title>
+    <title>Pisto Coin - Hamster Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: #000; color: white; text-align: center; font-family: 'Arial', sans-serif; margin: 0; padding: 0; user-select: none; }
+        /* CSS অংশ */
+        body { background: #000; color: white; text-align: center; font-family: 'Arial', sans-serif; margin: 0; overflow: hidden; }
         .header { display: flex; justify-content: space-between; padding: 15px; background: #1c1f24; border-bottom: 2px solid #f3ba2f; }
-        .stat-box { font-size: 14px; color: #aaa; }
         .stat-value { color: #f3ba2f; font-weight: bold; font-size: 18px; }
-        
-        .main-balance { font-size: 40px; margin: 30px 0; font-weight: bold; color: #fff; }
-        
-        .coin-section { position: relative; display: flex; justify-content: center; margin-top: 20px; }
-        .coin-btn { width: 240px; height: 240px; border-radius: 50%; box-shadow: 0 0 50px #f3ba2f55; cursor: pointer; transition: transform 0.05s; }
+        .main-balance { font-size: 45px; margin: 20px 0; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .main-balance img { width: 40px; margin-right: 10px; }
+        .coin-btn { width: 250px; height: 250px; border-radius: 50%; cursor: pointer; transition: transform 0.05s; border: 8px solid #2c2f35; box-shadow: 0 0 30px #f3ba2f33; }
         .coin-btn:active { transform: scale(0.95); }
-
-        .energy-section { margin-top: 30px; padding: 0 20px; }
-        .energy-bar-bg { width: 100%; height: 12px; background: #333; border-radius: 10px; margin-top: 5px; overflow: hidden; }
+        .energy-bar-bg { width: 80%; height: 12px; background: #333; border-radius: 10px; margin: 10px auto; overflow: hidden; }
         .energy-bar-fill { width: 100%; height: 100%; background: linear-gradient(to right, #f3ba2f, #ffea00); transition: width 0.2s; }
-        .energy-text { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
-
-        .footer { position: fixed; bottom: 0; width: 100%; background: #1c1f24; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; }
-        .nav-item { font-size: 12px; color: #888; text-decoration: none; cursor: pointer; }
-        .nav-item.active { color: #f3ba2f; }
-
-        .plus-one { position: absolute; color: #f3ba2f; font-size: 28px; font-weight: bold; animation: floatUp 0.8s ease-out forwards; pointer-events: none; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
+        .footer { position: fixed; bottom: 0; width: 100%; background: #1c1f24; display: flex; justify-content: space-around; padding: 12px 0; }
+        .nav-item { font-size: 12px; color: #888; cursor: pointer; }
+        .active { color: #f3ba2f; }
+        .plus-one { position: absolute; color: #f3ba2f; font-size: 26px; font-weight: bold; animation: floatUp 0.7s forwards; pointer-events: none; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="stat-box">Profit per hour<br><span class="stat-value">+0</span></div>
-        <div class="stat-box">Pisto Rank<br><span class="stat-value" style="color:white">Bronze</span></div>
+        <div>Profit per hour<br><span id="pph-val" class="stat-value">+0</span></div>
+        <div>Pisto Rank<br><span class="stat-value" style="color:white">Bronze</span></div>
     </div>
 
-    <div class="main-balance">🪙 <span id="balance">0</span></div>
+    <div class="main-balance"><img src="https://i.ibb.co/X7f3nTB/pisto-coin.jpg" alt="coin"> <span id="balance">0</span></div>
 
-    <div class="coin-section">
-        <img src="https://i.ibb.co/Kz9P3Zy/pisto-coin.jpg" class="coin-btn" onclick="mine(event)">
+    <div id="coin-area" style="position: relative;">
+        <img src="https://i.ibb.co/X7f3nTB/pisto-coin.jpg" class="coin-btn" onclick="mine(event)" alt="Pisto">
     </div>
 
-    <div class="energy-section">
-        <div class="energy-text">⚡ <span id="energy">1000</span> / 1000</div>
+    <div style="margin-top: 25px;">
+        <div>⚡ <span id="energy">1000</span> / 1000</div>
         <div class="energy-bar-bg"><div id="energy-bar" class="energy-bar-fill"></div></div>
     </div>
 
@@ -53,7 +46,6 @@
         <div class="nav-item">⛏️ Mine</div>
         <div class="nav-item">👥 Friends</div>
         <div class="nav-item">💰 Earn</div>
-        <div class="nav-item">🏦 Airdrop</div>
     </div>
 
     <script type="module">
@@ -74,60 +66,51 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let balance = 0;
-        let energy = 1000;
-        const maxEnergy = 1000;
+        let bal = 0, nrg = 1000, pph = 0;
+        const userRef = doc(db, "users", (tg.initDataUnsafe.user?.id || "test_user").toString());
 
-        const userId = tg.initDataUnsafe.user?.id || "test_user";
-        const userRef = doc(db, "users", userId.toString());
-
-        async function load() {
-            const docSnap = await getDoc(userRef);
-            if (docSnap.exists()) {
-                balance = docSnap.data().balance || 0;
-                energy = docSnap.data().energy || 1000;
-                updateUI();
+        async function loadData() {
+            const snap = await getDoc(userRef);
+            if(snap.exists()){
+                bal = snap.data().balance || 0;
+                nrg = snap.data().energy || 1000;
+                pph = snap.data().pph || 0;
             } else {
-                await setDoc(userRef, { balance: 0, energy: 1000 });
+                await setDoc(userRef, { balance: 0, energy: 1000, pph: 0 });
             }
+            render();
         }
 
-        function updateUI() {
-            document.getElementById('balance').innerText = balance.toLocaleString();
-            document.getElementById('energy').innerText = energy;
-            document.getElementById('energy-bar').style.width = (energy / maxEnergy * 100) + "%";
+        function render() {
+            document.getElementById('balance').innerText = Math.floor(bal).toLocaleString();
+            document.getElementById('energy').innerText = nrg;
+            document.getElementById('pph-val').innerText = "+" + pph;
+            document.getElementById('energy-bar').style.width = (nrg/10) + "%";
         }
 
-        window.mine = async function(event) {
-            if (energy <= 0) return;
-
-            balance++;
-            energy--;
-            updateUI();
-
+        window.mine = (e) => {
+            if(nrg <= 0) return;
+            bal++; nrg--;
+            render();
             // Animation
-            const plus = document.createElement('div');
-            plus.innerText = '+1';
-            plus.className = 'plus-one';
-            plus.style.left = event.clientX - 20 + 'px';
-            plus.style.top = event.clientY - 40 + 'px';
-            document.body.appendChild(plus);
-            setTimeout(() => plus.remove(), 800);
-
-            // Sync with Firebase
-            await updateDoc(userRef, { balance: increment(1), energy: energy });
+            const p = document.createElement('div');
+            p.innerText = '+1'; p.className = 'plus-one';
+            p.style.left = e.pageX + 'px'; p.style.top = e.pageY + 'px';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 700);
+            updateDoc(userRef, { balance: bal, energy: nrg });
         };
 
-        // Energy Recovery (অটোমেটিক শক্তি বাড়বে)
+        // Profit Per Hour Logic
         setInterval(() => {
-            if (energy < maxEnergy) {
-                energy++;
-                updateUI();
-                updateDoc(userRef, { energy: energy });
+            if(pph > 0) {
+                bal += (pph / 3600);
+                render();
             }
-        }, 3000); // প্রতি ৩ সেকেন্ডে ১ করে শক্তি বাড়বে
+            if(nrg < 1000) { nrg++; render(); }
+        }, 1000);
 
-        load();
+        loadData();
     </script>
 </body>
 </html>
