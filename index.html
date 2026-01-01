@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,50 +8,42 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root { 
-            --gold: #f3ba2f; 
-            --dark: #080a0c;
-            --glass: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
-
-        body { 
-            background: var(--dark); color: #fff; text-align: center; 
-            font-family: 'Inter', sans-serif; margin: 0; padding: 0; 
-            user-select: none; overflow-x: hidden;
-        }
-
+        :root { --gold: #f3ba2f; --dark: #080a0c; --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); }
+        body { background: var(--dark); color: #fff; text-align: center; font-family: 'Inter', sans-serif; margin: 0; padding: 0; user-select: none; overflow-x: hidden; }
+        
         #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #080a0c; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
         .loader-bar-bg { width: 200px; height: 4px; background: #1a1d23; border-radius: 10px; margin-top: 20px; overflow: hidden; }
         .loader-bar-fill { width: 0%; height: 100%; background: var(--gold); transition: width 0.3s; }
-
+        
         .bg-gradient { position: fixed; top: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 10%, #1a150a 0%, #080a0c 100%); z-index: -1; }
         
         .header { display: flex; justify-content: space-around; padding: 15px; background: rgba(0,0,0,0.6); border-bottom: 1px solid var(--glass-border); backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 100; }
         .stat-box { background: var(--glass); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 12px; min-width: 90px; }
         .stat-value { color: var(--gold); font-weight: 800; font-size: 13px; display: block; }
-
+        
         .tab-content { display: none; padding: 20px; padding-bottom: 120px; }
         .active-tab { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .bd-text { font-weight: 900; font-size: 16px; margin-top: 15px; letter-spacing: 1px; }
+        .bd-green { color: #006a4e; }
+        .bd-red { color: #f42a41; }
 
         .main-balance { font-size: 40px; margin: 20px 0; font-weight: 900; display: flex; align-items: center; justify-content: center; }
         .main-balance img { width: 42px; height: 42px; border-radius: 50%; margin-right: 12px; border: 2px solid var(--gold); }
-
-        .coin-btn { 
-            width: 240px; height: 240px; border-radius: 50%; 
-            border: 12px solid #1a1d23; cursor: pointer; transition: 0.1s; 
-            object-fit: cover; box-shadow: 0 0 40px rgba(243, 186, 47, 0.15);
-        }
+        
+        .coin-btn { width: 240px; height: 240px; border-radius: 50%; border: 10px solid #1a1d23; cursor: pointer; transition: 0.1s; object-fit: cover; }
         .coin-btn:active { transform: scale(0.92); }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
-        .premium-card { background: linear-gradient(145deg, rgba(243,186,47,0.12), rgba(0,0,0,0.5)); border: 1px solid var(--gold); padding: 12px; border-radius: 15px; text-align: left; }
+        .premium-card { background: linear-gradient(145deg, #7b0000, #2a0000); border: 1.5px solid #f42a41; padding: 12px; border-radius: 15px; text-align: left; box-shadow: 0 4px 15px rgba(244, 42, 65, 0.2); }
         .standard-card { background: var(--glass); border: 1px solid var(--glass-border); padding: 12px; border-radius: 15px; text-align: left; }
-
+        
         .buy-btn { background: var(--gold); color: #000; border: none; padding: 10px; width: 100%; border-radius: 10px; font-weight: 800; cursor: pointer; margin-top: 8px; font-size: 11px; text-transform: uppercase; }
+        .claim-btn { background: #006a4e; color: #fff; border: none; padding: 8px 15px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        
         .task-btn { background: #1a1d23; color: #fff; border: 1px solid var(--glass-border); padding: 12px; width: 100%; border-radius: 12px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
-
+        
         .footer { position: fixed; bottom: 15px; left: 5%; width: 90%; background: rgba(18, 22, 28, 0.95); border: 1px solid var(--glass-border); display: flex; justify-content: space-around; padding: 12px 0; border-radius: 20px; backdrop-filter: blur(20px); z-index: 1000; }
         .nav-item { font-size: 10px; color: #666; cursor: pointer; text-align: center; }
         .nav-item.active { color: var(--gold); }
@@ -62,7 +55,7 @@
 <body>
     <div id="loader">
         <img src="https://i.ibb.co.com/bj9kTWJ5/Chat-GPT-Image-Jan-1-2026-01-45-44-PM.png" style="width:110px; border-radius:50%; border:3px solid var(--gold);">
-        <h2 style="color:var(--gold); margin-top:15px;">PISTO COIN</h2>
+        <h2 style="color:var(--gold); margin-top:15px; letter-spacing: 2px;">PISTO COIN</h2>
         <div class="loader-bar-bg"><div id="loader-fill" class="loader-bar-fill"></div></div>
     </div>
 
@@ -70,13 +63,16 @@
 
     <div class="header">
         <div class="stat-box"><span style="font-size:9px;">PROFIT/HR</span><span id="pph-val" class="stat-value">+0</span></div>
-        <div class="stat-box"><span style="font-size:9px;">RANK</span><span id="rank-name" class="stat-value">Rookie</span></div>
+        <div class="stat-box"><span style="font-size:9px;">VIP STATUS</span><span id="vip-status" class="stat-value">NONE</span></div>
     </div>
 
     <div id="tab-exchange" class="tab-content active-tab">
         <div class="main-balance"><img src="https://i.ibb.co.com/bj9kTWJ5/Chat-GPT-Image-Jan-1-2026-01-45-44-PM.png"><span id="balance">0</span></div>
         <img src="https://i.ibb.co.com/bj9kTWJ5/Chat-GPT-Image-Jan-1-2026-01-45-44-PM.png" class="coin-btn" onclick="mine(event)">
-        <p style="color:var(--gold); font-weight:bold; margin-top:20px;">POWERED BY BANGLADESH 🇧🇩</p>
+        <div class="bd-text">
+            <span class="bd-green">PISTO COIN POWERED BY</span> 
+            <span class="bd-red">BANGLADESH 🇧🇩</span>
+        </div>
         <div style="width: 85%; margin: 25px auto;">
             <div style="display:flex; justify-content: space-between; font-size: 11px;"><span>⚡ Energy</span><span><span id="energy">1000</span>/1000</span></div>
             <div style="width:100%; height:8px; background: #1a1d23; border-radius: 10px;"><div id="energy-bar" style="width:100%; height:100%; background: var(--gold);"></div></div>
@@ -84,40 +80,39 @@
     </div>
 
     <div id="tab-mine" class="tab-content">
-        <h3 style="text-align:left; color:var(--gold);">💎 PREMIUM NODES</h3>
+        <h3 style="text-align:left; color:#f42a41;">🏮 PREMIUM NODES (HIGH YIELD)</h3>
         <div id="premier-container" class="grid"></div>
-        <h3 style="text-align:left; color:var(--gold); margin-top:20px;">⛏️ STANDARD FARM (90D)</h3>
+        <h3 style="text-align:left; color:var(--gold); margin-top:20px;">⛏️ STANDARD FARM (90 DAYS)</h3>
         <div id="standard-container" class="grid"></div>
     </div>
 
     <div id="tab-airdrop" class="tab-content">
-        <div style="background:var(--gold); color:#000; padding:15px; border-radius:15px; margin-bottom:15px;">
-            <h2 style="margin:0;">$PISTO AIRDROP</h2>
-            <p style="font-size:12px; margin:5px 0 0 0;">COMING SOON ON TON BLOCKCHAIN</p>
-        </div>
+        <button id="vip-btn" class="buy-btn" style="background:linear-gradient(45deg, #f42a41, #7b0000); color:#fff; height:55px; margin-bottom:20px;" onclick="buyVIP()">🚀 UPGRADE TO VIP ($10)</button>
 
-        <h3 style="text-align:left;">🎁 Daily Rewards</h3>
-        <button id="checkin-btn" class="task-btn" onclick="claimDaily()">
-            <span>Daily Check-in</span>
-            <span style="color:var(--gold);">+10,000</span>
-        </button>
-
-        <h3 style="text-align:left; margin-top:20px;">📋 Daily Tasks</h3>
-        <div class="task-btn" onclick="tg.openTelegramLink('https://t.me/your_channel')">
-            <span>Join Telegram</span>
-            <span style="color:var(--gold);">+5,000</span>
+        <h3 style="text-align:left;">🎁 Daily Reward</h3>
+        <div class="task-btn">
+            <div style="text-align:left;">
+                <b id="day-num">Day 1</b><br>
+                <small id="reward-val" style="color:var(--gold);">+10,000 Coins</small>
+            </div>
+            <button id="checkin-btn" class="claim-btn" onclick="claimDaily()">CLAIM</button>
         </div>
-        <div class="task-btn" onclick="tg.openLink('https://youtube.com/your_channel')">
+        <p id="timer-text" style="color:#f42a41; font-size:12px; font-weight:bold; text-align:left; margin-top:10px;"></p>
+
+        <h3 style="text-align:left; margin-top:25px;">📋 Daily Tasks</h3>
+        <div class="task-btn">
+            <span>Join Telegram Channel</span>
+            <button id="tg-task-btn" class="claim-btn" onclick="doTask('https://t.me/your_channel', 5000, 'tg_task')">JOIN & CLAIM</button>
+        </div>
+        <div class="task-btn">
             <span>Subscribe YouTube</span>
-            <span style="color:var(--gold);">+5,000</span>
+            <button id="yt-task-btn" class="claim-btn" onclick="doTask('https://youtube.com/your_channel', 5000, 'yt_task')">JOIN & CLAIM</button>
         </div>
-        
-        <button class="buy-btn" style="margin-top:20px;" onclick="shareRef()">Invite Friends to Earn</button>
     </div>
 
     <div id="tab-rank" class="tab-content">
         <h2 style="color:var(--gold);">🏆 TOP MINERS</h2>
-        <div id="leader-list" style="background:var(--glass); border-radius:15px; margin-top:15px;"></div>
+        <div id="leader-list" style="background:var(--glass); border-radius:15px; overflow:hidden;"></div>
     </div>
 
     <div class="footer">
@@ -145,52 +140,106 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let bal = 0, nrg = 1000, pph = 0, lastCheckin = 0, purchasedPremier = [], standardCards = [];
+        let bal = 0, nrg = 1000, pph = 0, lastCheckin = 0, checkinDay = 1, isVIP = false, purchasedPremier = [], standardCards = [], completedTasks = [];
         const uid = (tg.initDataUnsafe.user?.id || "test_user").toString();
         const uRef = doc(db, "users", uid);
 
         const pNodes = [
-            { id: "p1", name: "Premium Node I", price: 1, profit: 45000 },
-            { id: "p2", name: "Premium Node II", price: 1, profit: 120000 }
+            { id: "p1", name: "Premium Red I", price: 1, profit: 85000 },
+            { id: "p2", name: "Premium Red II", price: 1, profit: 210000 },
+            { id: "p3", name: "Premium Red III", price: 2, profit: 450000 },
+            { id: "p4", name: "Premium Red IV", price: 3, profit: 980000 }
         ];
 
         async function init() {
             let prg = 0; const iv = setInterval(() => { prg += 20; document.getElementById('loader-fill').style.width = prg + "%"; if(prg >= 100) { clearInterval(iv); document.getElementById('loader').style.display = "none"; }}, 200);
-
             const snap = await getDoc(uRef);
             if(snap.exists()) {
                 const d = snap.data();
                 bal = d.balance || 0; nrg = d.energy || 1000;
                 lastCheckin = d.lastCheckin || 0;
+                checkinDay = d.checkinDay || 1;
+                isVIP = d.isVIP || false;
                 purchasedPremier = d.premier || [];
                 standardCards = d.standardCards || [];
+                completedTasks = d.completedTasks || [];
                 updatePPH();
             } else {
-                await setDoc(uRef, { name: tg.initDataUnsafe.user?.first_name || "Miner", balance: 0, energy: 1000 });
+                await setDoc(uRef, { name: tg.initDataUnsafe.user?.first_name || "Miner", balance: 0, energy: 1000, isVIP: false, completedTasks: [] });
             }
-            render(); genShop(); runLoops();
+            render(); genShop(); startTimerLoop(); runLoops();
         }
 
-        function updatePPH() {
-            let t = 0; const now = Date.now();
-            pNodes.forEach(n => { if(purchasedPremier.includes(n.id)) t += n.profit; });
-            standardCards = standardCards.filter(c => {
-                if(now - c.buyDate < 7776000000) { t += c.profit; return true; }
-                return false;
-            });
-            pph = t;
+        // TASK VERIFICATION LOGIC
+        window.doTask = async (url, reward, taskId) => {
+            if(completedTasks.includes(taskId)) {
+                tg.showAlert("Task already completed!");
+                return;
+            }
+            tg.openLink(url);
+            setTimeout(() => {
+                tg.showConfirm("Did you join the channel/subscribe?", async (confirmed) => {
+                    if(confirmed) {
+                        bal += reward;
+                        completedTasks.push(taskId);
+                        render();
+                        await updateDoc(uRef, { balance: bal, completedTasks: completedTasks });
+                        confetti();
+                        tg.showAlert("Reward added successfully!");
+                    } else {
+                        tg.showAlert("Join first to get the reward!");
+                    }
+                });
+            }, 5000);
+        };
+
+        function startTimerLoop() {
+            setInterval(() => {
+                const diff = Date.now() - lastCheckin;
+                const btn = document.getElementById('checkin-btn');
+                const timer = document.getElementById('timer-text');
+                if(diff < 86400000) {
+                    btn.disabled = true; btn.style.opacity = "0.5";
+                    const rem = 86400000 - diff;
+                    const h = Math.floor(rem/3600000);
+                    const m = Math.floor((rem%3600000)/60000);
+                    const s = Math.floor((rem%60000)/1000);
+                    timer.innerText = `⏳ Next Claim: ${h}h ${m}m ${s}s`;
+                } else {
+                    btn.disabled = false; btn.style.opacity = "1";
+                    timer.innerText = "✅ Reward is ready to claim!";
+                }
+            }, 1000);
         }
+
+        window.claimDaily = async () => {
+            let reward = isVIP ? 100000 : checkinDay * 10000;
+            bal += reward; lastCheckin = Date.now();
+            if(!isVIP) checkinDay = checkinDay >= 7 ? 1 : checkinDay + 1;
+            render();
+            await updateDoc(uRef, { balance: bal, lastCheckin, checkinDay });
+            confetti(); tg.showAlert(`You received ${reward.toLocaleString()} coins!`);
+        };
+
+        window.buyVIP = () => {
+            tg.showConfirm("Buy VIP for $10? (Get 100,000 coins daily + Special Status)", (ok) => {
+                if(ok) {
+                    tg.openLink('https://tonkeeper.com/transfer/UQBzj_8YucVPnfI9rLJrWhndnPnAWhhk7HkIz4voIqYvhYnf?amount=6500000000');
+                    setTimeout(async () => { isVIP = true; render(); await updateDoc(uRef, { isVIP: true }); }, 5000);
+                }
+            });
+        };
 
         function genShop() {
             let ph = ""; pNodes.forEach(n => {
                 let owns = purchasedPremier.includes(n.id);
-                ph += `<div class="premium-card"><b>${n.name}</b><br><small style="color:var(--gold)">+${n.profit/1000}k/h</small>
-                <button class="buy-btn btn-ton" onclick="buyP('${n.id}', ${n.price})" ${owns?'disabled':''}>${owns?'OWNED':n.price+' TON'}</button></div>`;
+                ph += `<div class="premium-card"><b>${n.name}</b><br><small style="color:var(--gold);">+${n.profit.toLocaleString()}/h</small>
+                <button class="buy-btn" onclick="buyP('${n.id}', ${n.price})" ${owns?'disabled':''}>${owns?'OWNED':n.price+' TON'}</button></div>`;
             });
             document.getElementById('premier-container').innerHTML = ph;
 
             let sh = ""; for(let i=1; i<=10; i++) { 
-                let cost = i * 20000; let pr = i * 400;
+                let cost = i * 25000; let pr = i * 500;
                 sh += `<div class="standard-card"><b>Miner V${i}</b><br><small>+${pr}/h</small>
                 <button class="buy-btn" onclick="buyS(${cost}, ${pr})">🪙 ${cost.toLocaleString()}</button></div>`;
             }
@@ -198,55 +247,29 @@
         }
 
         window.buyP = (id, price) => {
-            tg.showConfirm(`Confirm ${price} TON?`, (ok) => {
-                if(ok) {
-                    tg.openLink(`https://tonkeeper.com/transfer/UQBzj_8YucVPnfI9rLJrWhndnPnAWhhk7HkIz4voIqYvhYnf?amount=${price * 1000000000}`);
-                    setTimeout(async () => {
-                        if(!purchasedPremier.includes(id)) purchasedPremier.push(id);
-                        updatePPH(); genShop();
-                        await updateDoc(uRef, { premier: purchasedPremier, pph });
-                    }, 5000);
-                }
-            });
+            tg.openLink(`https://tonkeeper.com/transfer/UQBzj_8YucVPnfI9rLJrWhndnPnAWhhk7HkIz4voIqYvhYnf?amount=${price * 1000000000}`);
+            setTimeout(async () => { 
+                if(!purchasedPremier.includes(id)) purchasedPremier.push(id);
+                updatePPH(); genShop(); await updateDoc(uRef, { premier: purchasedPremier, pph });
+            }, 5000);
         };
 
         window.buyS = async (cost, pr) => {
             if(bal >= cost) {
                 bal -= cost; standardCards.push({ profit: pr, buyDate: Date.now() });
-                updatePPH(); render();
-                await updateDoc(uRef, { balance: bal, standardCards, pph });
-                confetti();
-            } else { tg.showAlert("Low Balance!"); }
+                updatePPH(); render(); await updateDoc(uRef, { balance: bal, standardCards, pph });
+            } else tg.showAlert("Insufficient balance!");
         };
 
-        window.claimDaily = async () => {
-            const now = Date.now();
-            if(now - lastCheckin >= 86400000) {
-                bal += 10000; lastCheckin = now; render();
-                await updateDoc(uRef, { balance: bal, lastCheckin });
-                confetti();
-                tg.showAlert("10,000 Coins Claimed!");
-            } else {
-                const left = 86400000 - (now - lastCheckin);
-                tg.showAlert(`Come back in ${Math.floor(left/3600000)}h`);
-            }
-        };
-
-        window.loadRank = async () => {
-            const q = query(collection(db, "users"), orderBy("balance", "desc"), limit(10));
-            const snap = await getDocs(q);
-            let h = "", r = 1;
-            snap.forEach(d => {
-                h += `<div style="display:flex; justify-content:space-between; padding:15px; border-bottom:1px solid #1a1a1a;">
-                <span>#${r++} ${d.data().name}</span><b>${Math.floor(d.data().balance).toLocaleString()}</b></div>`;
-            });
-            document.getElementById('leader-list').innerHTML = h;
-        };
+        function updatePPH() {
+            let t = 0; const now = Date.now();
+            pNodes.forEach(n => { if(purchasedPremier.includes(n.id)) t += n.profit; });
+            standardCards = standardCards.filter(c => { if(now - c.buyDate < 7776000000) { t += c.profit; return true; } return false; });
+            pph = t;
+        }
 
         function runLoops() {
-            setInterval(() => {
-                if(pph > 0) bal += (pph/3600); if(nrg < 1000) nrg++; render();
-            }, 1000);
+            setInterval(() => { if(pph > 0) bal += (pph/3600); if(nrg < 1000) nrg++; render(); }, 1000);
             setInterval(() => updateDoc(uRef, { balance: bal, energy: nrg }), 25000);
         }
 
@@ -255,7 +278,21 @@
             document.getElementById('energy').innerText = nrg;
             document.getElementById('pph-val').innerText = "+" + Math.floor(pph).toLocaleString();
             document.getElementById('energy-bar').style.width = (nrg/10) + "%";
-            document.getElementById('rank-name').innerText = bal > 1000000 ? "Elite" : "Rookie";
+            document.getElementById('vip-status').innerText = isVIP ? "ACTIVE" : "NONE";
+            document.getElementById('day-num').innerText = isVIP ? "VIP REWARD" : "Day " + checkinDay;
+            document.getElementById('reward-val').innerText = isVIP ? "+100,000 Coins" : "+" + (checkinDay*10000).toLocaleString() + " Coins";
+            
+            // Task status update
+            if(completedTasks.includes('tg_task')) {
+                document.getElementById('tg-task-btn').innerText = "DONE";
+                document.getElementById('tg-task-btn').disabled = true;
+                document.getElementById('tg-task-btn').style.background = "#333";
+            }
+            if(completedTasks.includes('yt_task')) {
+                document.getElementById('yt-task-btn').innerText = "DONE";
+                document.getElementById('yt-task-btn').disabled = true;
+                document.getElementById('yt-task-btn').style.background = "#333";
+            }
         };
 
         window.mine = (e) => {
@@ -271,9 +308,18 @@
             document.getElementById(id).classList.add('active-tab'); el.classList.add('active');
         };
 
-        window.shareRef = () => tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/Pisto_Coin_Bot?start=${uid}&text=Join and Mine!`);
+        window.loadRank = async () => {
+            const q = query(collection(db, "users"), orderBy("balance", "desc"), limit(10));
+            const snap = await getDocs(q);
+            let h = "", r = 1; snap.forEach(d => { h += `<div style="display:flex; justify-content:space-between; padding:15px; border-bottom:1px solid #1a1a1a;"><span>#${r++} ${d.data().name}</span><b>${Math.floor(d.data().balance).toLocaleString()}</b></div>`; });
+            document.getElementById('leader-list').innerHTML = h;
+        };
+
+        window.shareRef = () => tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/Pisto_Coin_Bot?start=${uid}&text=Join and Mine Pisto Coin!`);
 
         init();
     </script>
 </body>
 </html>
+
+```
