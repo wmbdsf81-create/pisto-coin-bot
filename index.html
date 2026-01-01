@@ -3,117 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pisto Coin - Victory 2027</title>
+    <title>Pisto Coin - Global Miner</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --primary: #f3ba2f; --bg: #0b0e11; --card: rgba(28, 31, 36, 0.9); }
-        body { background: var(--bg); color: white; text-align: center; font-family: 'Arial', sans-serif; margin: 0; padding: 0; user-select: none; }
-        .bg-glow { position: fixed; top: 0; width: 100%; height: 100%; background: radial-gradient(circle, #1a1a1a 0%, #0b0e11 100%); z-index: -1; }
-        
-        .header { display: flex; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.5); border-bottom: 2px solid var(--primary); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
-        .stat-value { color: var(--primary); font-weight: bold; font-size: 16px; }
+        :root { 
+            --gold: #f3ba2f; 
+            --dark: #080a0c;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
 
-        .tab-content { display: none; padding: 15px; padding-bottom: 120px; animation: fadeIn 0.4s; }
-        .active-tab { display: block; }
+        body { 
+            background: var(--dark); color: #fff; text-align: center; 
+            font-family: 'Inter', sans-serif; margin: 0; padding: 0; 
+            user-select: none; overflow-x: hidden;
+        }
+
+        /* --- LOADER --- */
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #080a0c; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+        .loader-bar-bg { width: 200px; height: 4px; background: #1a1d23; border-radius: 10px; margin-top: 20px; overflow: hidden; }
+        .loader-bar-fill { width: 0%; height: 100%; background: var(--gold); transition: width 0.3s; }
+
+        .bg-gradient { position: fixed; top: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 10%, #1a150a 0%, #080a0c 100%); z-index: -1; }
+        
+        .header { display: flex; justify-content: space-around; padding: 15px; background: rgba(0,0,0,0.6); border-bottom: 1px solid var(--glass-border); backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 100; }
+        .stat-box { background: var(--glass); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 12px; min-width: 90px; }
+        .stat-value { color: var(--gold); font-weight: 800; font-size: 13px; display: block; }
+
+        .tab-content { display: none; padding: 20px; padding-bottom: 120px; }
+        .active-tab { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .main-balance { font-size: 40px; margin: 20px 0; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-        .main-balance img { width: 45px; margin-right: 10px; filter: drop-shadow(0 0 10px var(--primary)); }
+        .main-balance { font-size: 40px; margin: 20px 0; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+        .main-balance img { width: 42px; height: 42px; border-radius: 50%; margin-right: 12px; border: 2px solid var(--gold); }
 
-        .coin-btn { width: 210px; height: 210px; border-radius: 50%; border: 8px solid #2c2f35; cursor: pointer; transition: 0.1s; }
-        .coin-btn:active { transform: scale(0.95); }
+        .coin-btn { 
+            width: 240px; height: 240px; border-radius: 50%; 
+            border: 12px solid #1a1d23; cursor: pointer; transition: 0.1s; 
+            object-fit: cover; box-shadow: 0 0 40px rgba(243, 186, 47, 0.15);
+        }
+        .coin-btn:active { transform: scale(0.92); filter: brightness(1.2); }
 
-        .card { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #333; text-align: left; margin-bottom: 10px; }
-        .buy-btn { background: var(--primary); color: #000; border: none; padding: 10px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .premier-btn { background: linear-gradient(45deg, #0088cc, #00d2ff); color: white; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+        .premium-card { background: linear-gradient(145deg, rgba(243,186,47,0.12), rgba(0,0,0,0.5)); border: 1px solid var(--gold); padding: 12px; border-radius: 15px; text-align: left; }
+        .standard-card { background: var(--glass); border: 1px solid var(--glass-border); padding: 12px; border-radius: 15px; text-align: left; }
 
-        /* Roadmap CSS */
-        .roadmap-item { border-left: 2px solid #444; padding-left: 20px; position: relative; margin-bottom: 20px; }
-        .roadmap-dot { position: absolute; left: -6px; top: 0; width: 10px; height: 10px; background: #555; border-radius: 50%; }
-        .active-dot { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
-        .victory-dot { background: #00ff00; box-shadow: 0 0 10px #00ff00; }
+        .buy-btn { background: var(--gold); color: #000; border: none; padding: 10px; width: 100%; border-radius: 10px; font-weight: 800; cursor: pointer; margin-top: 8px; font-size: 11px; text-transform: uppercase; }
+        .btn-ton { background: linear-gradient(45deg, #0088cc, #00d2ff); color: #fff; }
 
-        .footer { position: fixed; bottom: 0; width: 100%; background: #1c1f24; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #333; z-index: 1000; }
-        .nav-item { font-size: 11px; color: #777; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
-        .nav-item.active { color: var(--primary); }
+        .coming-soon-box { padding: 60px 20px; border: 2px dashed var(--gold); border-radius: 20px; background: rgba(243, 186, 47, 0.05); margin-top: 20px; }
+
+        .footer { position: fixed; bottom: 15px; left: 5%; width: 90%; background: rgba(18, 22, 28, 0.95); border: 1px solid var(--glass-border); display: flex; justify-content: space-around; padding: 12px 0; border-radius: 20px; backdrop-filter: blur(20px); z-index: 1000; }
+        .nav-item { font-size: 10px; color: #666; cursor: pointer; text-align: center; font-weight: 500; }
+        .nav-item.active { color: var(--gold); }
+        
+        .plus-one { position: absolute; color: var(--gold); font-size: 26px; font-weight: 900; animation: floatUp 0.8s forwards; pointer-events: none; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
     </style>
 </head>
 <body>
-    <div class="bg-glow"></div>
+    <div id="loader">
+        <img src="https://i.ibb.co.com/bj9kTWJ5/Chat-GPT-Image-Jan-1-2026-01-45-44-PM.png" style="width:110px; border-radius:50%; border:3px solid var(--gold);">
+        <h2 style="color:var(--gold); margin-top:15px; letter-spacing: 3px;">PISTO COIN</h2>
+        <div class="loader-bar-bg"><div id="loader-fill" class="loader-bar-fill"></div></div>
+    </div>
+
+    <div class="bg-gradient"></div>
 
     <div class="header">
-        <div><small>Profit/hr</small><br><span id="pph-val" class="stat-value">+0</span></div>
-        <div><small>Rank</small><br><span id="rank-name" class="stat-value">Bronze</span></div>
+        <div class="stat-box"><span style="font-size:9px;color:#888;">PROFIT/HR</span><span id="pph-val" class="stat-value">+0</span></div>
+        <div class="stat-box"><span style="font-size:9px;color:#888;">RANK</span><span id="rank-name" class="stat-value">Rookie</span></div>
     </div>
 
     <div id="tab-exchange" class="tab-content active-tab">
-        <div class="main-balance"><img src="https://i.ibb.co/X7f3nTB/pisto-coin.jpg"> <span id="balance">0</span></div>
-        <img src="https://i.ibb.co/X7f3nTB/pisto-coin.jpg" class="coin-btn" onclick="mine(event)">
-        <h2 style="color:var(--primary); margin-top:20px;">Pisto Coin</h2>
-        <p style="opacity:0.6; font-size:12px; letter-spacing:2px;">POWERED BY BANGLADESH 🇧🇩</p>
-        <div style="margin-top:20px;">
-            <small>⚡ Energy: <span id="energy">1000</span>/1000</small>
-            <div style="width:80%; height:10px; background:#222; border-radius:10px; margin:5px auto; overflow:hidden;">
-                <div id="energy-bar" style="width:100%; height:100%; background:var(--primary); transition: 0.3s;"></div>
-            </div>
+        <div class="main-balance"><img src="https://i.ibb.co.com/bj9kTWJ5/Chat-GPT-Image-Jan-1-2026-01-45-44-PM.png"><span id="balance">0</span></div>
+        <img src="https://i.ibb.co.com/bj9kTWJ5/Chat-GPT-Image-Jan-1-2026-01-45-44-PM.png" class="coin-btn" onclick="mine(event)">
+        <p style="color:var(--gold); font-weight:bold; margin-top:20px;">POWERED BY BANGLADESH 🇧🇩</p>
+        <div style="width: 85%; margin: 25px auto;">
+            <div style="display:flex; justify-content: space-between; font-size: 11px;"><span>⚡ Energy</span><span><span id="energy">1000</span>/1000</span></div>
+            <div style="width:100%; height:8px; background: #1a1d23; border-radius: 10px;"><div id="energy-bar" style="width:100%; height:100%; background: var(--gold);"></div></div>
         </div>
     </div>
 
     <div id="tab-mine" class="tab-content">
-        <h3 style="text-align:left; color:var(--primary);">⭐ Premier (TON)</h3>
-        <div id="premier-container" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"></div>
-        
-        <h3 style="text-align:left; color:var(--primary); margin-top:20px;">⛏️ Standard</h3>
-        <div id="standard-container" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"></div>
+        <h3 style="text-align:left; color:var(--gold);">💎 PREMIUM NODES (+50% PROFIT)</h3>
+        <div id="premier-container" class="grid"></div>
+        <h3 style="text-align:left; color:var(--gold); margin-top:20px;">⛏️ STANDARD FARM (90 DAYS)</h3>
+        <div id="standard-container" class="grid"></div>
     </div>
 
-    <div id="tab-earn" class="tab-content">
-        <div class="card" style="border: 2px solid var(--primary);">
-            <h4>🎁 Daily Check-in</h4>
-            <p id="timer-text" style="font-size:12px; color:#aaa;">Claim 10,000 coins every 24h.</p>
-            <button id="claim-btn" class="buy-btn" onclick="claimDaily()">Claim Now</button>
-        </div>
-        <div class="card">
-            <h4>🤝 Referral</h4>
-            <button class="buy-btn" onclick="shareRef()">Invite Friend</button>
-        </div>
+    <div id="tab-rank" class="tab-content">
+        <h2 style="color:var(--gold);">🏆 TOP MINERS</h2>
+        <div id="leader-list" style="background:var(--glass); border-radius:15px; margin-top:15px; border: 1px solid var(--glass-border);"></div>
     </div>
 
     <div id="tab-airdrop" class="tab-content">
-        <div class="card" style="background: linear-gradient(135deg, #1c1f24, #2c2f35); border: 1px solid var(--primary);">
-            <h2 style="color: var(--primary); margin: 0;">💎 $PISTO Token</h2>
-            <p style="font-size: 13px;">Official Launch: 16 December 2027</p>
-            <button class="buy-btn premier-btn" onclick="connectWallet()">Connect TON Wallet</button>
-            <p id="wallet-addr" style="font-size:9px; color:var(--primary); margin-top:8px;"></p>
+        <div class="coming-soon-box">
+            <h1 style="color:var(--gold); margin:0; letter-spacing: 5px;">COMING SOON</h1>
+            <p style="color:#888; font-size:14px; margin-top:15px;">The $PISTO Airdrop system is being built on the TON Blockchain. Eligibility depends on your total Balance and PPH.</p>
         </div>
-
-        <h3 style="text-align: left; color: var(--primary); margin: 20px 0 15px 5px;">📍 Roadmap</h3>
-        
-        <div class="card" style="background: rgba(255,255,255,0.03);">
-            <div class="roadmap-item">
-                <div class="roadmap-dot active-dot"></div>
-                <h4 style="margin:0; color:var(--primary);">Phase 1: 2025</h4>
-                <p style="font-size:11px; color:#ccc;">Platform Launch, Mining Engine & Community Growth.</p>
-            </div>
-            <div class="roadmap-item">
-                <div class="roadmap-dot"></div>
-                <h4 style="margin:0;">Phase 2: 2026</h4>
-                <p style="font-size:11px; color:#ccc;">DEX Listing, Ecosystem Expansion & Global Audit.</p>
-            </div>
-            <div class="roadmap-item" style="border-left: 2px solid #00ff00;">
-                <div class="roadmap-dot victory-dot"></div>
-                <h4 style="margin:0; color:#00ff00;">Phase 3: 16 Dec 2027</h4>
-                <p style="font-size:11px; color:#ccc;">Victory Day Grand TGE & Airdrop Distribution.</p>
-            </div>
+        <div class="standard-card" style="margin-top:20px; text-align:center;">
+            <h3>Invite Friends</h3>
+            <button class="buy-btn" onclick="shareRef()">Get Referral Link</button>
         </div>
     </div>
 
     <div class="footer">
-        <div class="nav-item active" onclick="showTab('tab-exchange', this)">🏠<span>Home</span></div>
-        <div class="nav-item" onclick="showTab('tab-mine', this)">⛏️<span>Mine</span></div>
-        <div class="nav-item" onclick="showTab('tab-earn', this)">💰<span>Earn</span></div>
-        <div class="nav-item" onclick="showTab('tab-airdrop', this)">🏦<span>Airdrop</span></div>
+        <div class="nav-item active" onclick="showTab('tab-exchange', this)">🏠<br>Home</div>
+        <div class="nav-item" onclick="showTab('tab-mine', this)">⛏️<br>Mine</div>
+        <div class="nav-item" onclick="showTab('tab-rank', this); loadRank();">🏆<br>Rank</div>
+        <div class="nav-item" onclick="showTab('tab-airdrop', this)">🏦<br>Airdrop</div>
     </div>
 
     <script type="module">
@@ -134,110 +134,118 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let bal = 0, nrg = 1000, pph = 0, lastCheckin = 0, purchasedPremier = [];
-        const userId = (tg.initDataUnsafe.user?.id || "test_user").toString();
-        const userRef = doc(db, "users", userId);
-        const myWallet = "UQBzj_8YucVPnfI9rLJrWhndnPnAWhhk7HkIz4voIqYvhYnf";
+        let bal = 0, nrg = 1000, pph = 0, purchasedPremier = [], standardCards = [];
+        const uid = (tg.initDataUnsafe.user?.id || "test_user").toString();
+        const uRef = doc(db, "users", uid);
 
-        const premierCards = [
-            { id: "p1", name: "Elite Whale", price: "1", profit: 50000 },
-            { id: "p2", name: "Pisto Master", price: "1", profit: 100000, req: "p1" },
-            { id: "p3", name: "Golden Miner", price: "1", profit: 150000 },
-            { id: "p4", name: "Victory Node", price: "1", profit: 250000 }
+        // Premium cards (High price in TON, High Profit)
+        const pNodes = [
+            { id: "p1", name: "Premium Node I", price: 1, profit: 40000 },
+            { id: "p2", name: "Premium Node II", price: 1, profit: 100000 },
+            { id: "p3", name: "Premium Node III", price: 1, profit: 250000 },
+            { id: "p4", name: "Premium Node IV", price: 1, profit: 600000 }
         ];
 
         async function init() {
-            const snap = await getDoc(userRef);
-            if(snap.exists()){
+            let prg = 0; const iv = setInterval(() => { prg += 20; document.getElementById('loader-fill').style.width = prg + "%"; if(prg >= 100) { clearInterval(iv); document.getElementById('loader').style.display = "none"; }}, 200);
+
+            const snap = await getDoc(uRef);
+            if(snap.exists()) {
                 const d = snap.data();
-                bal = d.balance || 0; nrg = d.energy || 1000; pph = d.pph || 0;
-                lastCheckin = d.lastCheckin || 0; purchasedPremier = d.premier || [];
+                bal = d.balance || 0; nrg = d.energy || 1000;
+                purchasedPremier = d.premier || [];
+                standardCards = d.standardCards || [];
+                updatePPH();
             } else {
-                await setDoc(userRef, { name: tg.initDataUnsafe.user?.first_name || "Miner", balance: 0, energy: 1000, pph: 0 });
+                await setDoc(uRef, { name: tg.initDataUnsafe.user?.first_name || "Miner", balance: 0, energy: 1000 });
             }
-            render(); genStandard(); genPremier(); updateCheckinTimer();
+            render(); genShop(); runLoops();
         }
 
-        window.claimDaily = async () => {
-            const now = Date.now();
-            if(now - lastCheckin >= 86400000) {
-                bal += 10000; lastCheckin = now;
-                await updateDoc(userRef, { balance: bal, lastCheckin: lastCheckin });
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                render();
-            }
-        };
-
-        function updateCheckinTimer() {
-            const btn = document.getElementById('claim-btn');
-            setInterval(() => {
-                const diff = 86400000 - (Date.now() - lastCheckin);
-                if(diff > 0) {
-                    btn.disabled = true;
-                    const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
-                    btn.innerText = `${h}h ${m}m ${s}s`;
-                    btn.style.background = "#444";
-                } else {
-                    btn.disabled = false; btn.innerText = "Claim Now"; btn.style.background = "var(--primary)";
-                }
-            }, 1000);
+        function updatePPH() {
+            let t = 0; const now = Date.now();
+            pNodes.forEach(n => { if(purchasedPremier.includes(n.id)) t += n.profit; });
+            standardCards = standardCards.filter(c => {
+                if(now - c.buyDate < 7776000000) { t += c.profit; return true; }
+                return false;
+            });
+            pph = t;
         }
 
-        window.buyPremier = async (id, profit, price) => {
-            tg.showConfirm(`Pay ${price} TON to unlock?`, (ok) => {
+        function genShop() {
+            let ph = ""; pNodes.forEach(n => {
+                let owns = purchasedPremier.includes(n.id);
+                ph += `<div class="premium-card"><b>${n.name}</b><br><small style="color:var(--gold)">+${(n.profit/1000).toFixed(1)}k/h</small>
+                <button class="buy-btn btn-ton" onclick="buyP('${n.id}', ${n.price})" ${owns?'disabled':''}>${owns?'OWNED':n.price+' TON'}</button></div>`;
+            });
+            document.getElementById('premier-container').innerHTML = ph;
+
+            let sh = ""; for(let i=1; i<=10; i++) { 
+                let cost = i * 25000; // Increased price significantly
+                let pr = i * 500;     // Lowered profit for standard cards
+                sh += `<div class="standard-card"><b>Miner V${i}</b><br><small>+${pr}/h</small>
+                <button class="buy-btn" onclick="buyS(${cost}, ${pr})">🪙 ${cost.toLocaleString()}</button></div>`;
+            }
+            document.getElementById('standard-container').innerHTML = sh;
+        }
+
+        window.buyP = (id, price) => {
+            tg.showConfirm(`Confirm Premium Purchase for ${price} TON?`, (ok) => {
                 if(ok) {
-                    tg.openLink(`https://tonkeeper.com/transfer/${myWallet}?amount=${price * 1000000000}`);
+                    tg.openLink(`https://tonkeeper.com/transfer/UQBzj_8YucVPnfI9rLJrWhndnPnAWhhk7HkIz4voIqYvhYnf?amount=${price * 1000000000}`);
                     setTimeout(async () => {
-                        pph += profit; purchasedPremier.push(id);
-                        await updateDoc(userRef, { pph: pph, premier: purchasedPremier });
-                        tg.showAlert("Purchase Initiated!"); render(); genPremier();
-                    }, 4000);
+                        if(!purchasedPremier.includes(id)) purchasedPremier.push(id);
+                        updatePPH(); genShop();
+                        await updateDoc(uRef, { premier: purchasedPremier, pph });
+                    }, 5000);
                 }
             });
         };
 
-        function genPremier() {
-            let h = ""; premierCards.forEach(c => {
-                let isBought = purchasedPremier.includes(c.id);
-                let isLocked = c.req && !purchasedPremier.includes(c.req);
-                h += `<div class="card" style="opacity:${isLocked && !isBought ? '0.5':'1'}">
-                    <h4>${c.name}</h4><small>+${c.profit}/hr</small>
-                    ${isBought ? '<button class="buy-btn" disabled>Owned</button>' : 
-                      isLocked ? '<br><small style="color:red">🔒 Need Prev</small>' : `<button class="buy-btn premier-btn" onclick="buyPremier('${c.id}', ${c.profit}, ${c.price})">${c.price} TON</button>`}
-                </div>`;
-            });
-            document.getElementById('premier-container').innerHTML = h;
-        }
+        window.buyS = async (cost, pr) => {
+            if(bal >= cost) {
+                bal -= cost; standardCards.push({ profit: pr, buyDate: Date.now() });
+                updatePPH(); render();
+                await updateDoc(uRef, { balance: bal, standardCards, pph });
+                confetti({ particleCount: 30 });
+            } else { tg.showAlert("Insufficient Coins!"); }
+        };
 
-        function genStandard() {
-            let h = ""; for(let i=1; i<=6; i++) {
-                let p = i*3000, pr = i*400;
-                h += `<div class="card"><h4>Miner V${i}</h4><small>+${pr}/hr</small>
-                    <button class="buy-btn" onclick="buyCard(${p}, ${pr})">🪙 ${p}</button></div>`;
-            }
-            document.getElementById('standard-container').innerHTML = h;
+        window.loadRank = async () => {
+            const q = query(collection(db, "users"), orderBy("balance", "desc"), limit(10));
+            const snap = await getDocs(q);
+            let h = "", r = 1;
+            snap.forEach(d => {
+                h += `<div style="display:flex; justify-content:space-between; padding:15px; border-bottom:1px solid #1a1a1a;">
+                <span><b style="color:var(--gold)">#${r++}</b> ${d.data().name}</span>
+                <span style="font-weight:bold;">${Math.floor(d.data().balance).toLocaleString()}</span></div>`;
+            });
+            document.getElementById('leader-list').innerHTML = h;
+        };
+
+        function runLoops() {
+            setInterval(() => {
+                if(pph > 0) bal += (pph/3600); 
+                if(nrg < 1000) nrg++; // Energy refill back to 1/s
+                render();
+            }, 1000);
+            setInterval(() => updateDoc(uRef, { balance: bal, energy: nrg }), 25000);
         }
 
         window.render = () => {
             document.getElementById('balance').innerText = Math.floor(bal).toLocaleString();
             document.getElementById('energy').innerText = nrg;
-            document.getElementById('pph-val').innerText = "+" + pph.toLocaleString();
+            document.getElementById('pph-val').innerText = "+" + Math.floor(pph).toLocaleString();
             document.getElementById('energy-bar').style.width = (nrg/10) + "%";
+            document.getElementById('rank-name').innerText = bal > 1000000 ? "Legend" : (bal > 300000 ? "Elite" : "Rookie");
         };
 
         window.mine = (e) => {
-            if(nrg <= 0) return;
-            bal++; nrg--; render();
-            const p = document.createElement('div'); p.innerText = '+1'; p.style.position = 'absolute';
-            p.style.left = e.pageX+'px'; p.style.top = e.pageY+'px'; p.style.color = 'var(--primary)';
-            p.style.animation = 'floatUp 0.6s forwards'; p.style.fontWeight = 'bold';
-            document.body.appendChild(p); setTimeout(() => p.remove(), 600);
-            updateDoc(userRef, { balance: bal, energy: nrg });
-        };
-
-        window.buyCard = async (p, pr) => {
-            if(bal >= p) { bal -= p; pph += pr; render(); await updateDoc(userRef, { balance: bal, pph: pph }); }
-            else { tg.showAlert("Low balance!"); }
+            if(nrg < 1) return; // Back to 1 energy per tap
+            bal++; nrg -= 1; render();
+            const p = document.createElement('div'); p.innerText = '+1'; p.className = 'plus-one';
+            p.style.left = e.pageX+'px'; p.style.top = e.pageY+'px';
+            document.body.appendChild(p); setTimeout(() => p.remove(), 700);
         };
 
         window.showTab = (id, el) => {
@@ -246,12 +254,8 @@
             document.getElementById(id).classList.add('active-tab'); el.classList.add('active');
         };
 
-        window.shareRef = () => {
-            const link = `https://t.me/Pisto_Coin_Bot?start=${userId}`;
-            tg.openTelegramLink(`https://t.me/share/url?url=${link}&text=Join Pisto Coin!`);
-        };
+        window.shareRef = () => tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/Pisto_Coin_Bot?start=${uid}&text=Mine Pisto Coin with me!`);
 
-        setInterval(() => { if(pph > 0) bal += (pph/3600); if(nrg < 1000) nrg++; render(); }, 1000);
         init();
     </script>
 </body>
