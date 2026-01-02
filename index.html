@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pisto Miner V2 - Pro Edition</title>
+    <title>Pisto Miner V2 - Ultra Edition</title>
+    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
     <script src="https://adsgram.ai/sdk/v1/adsgram-sdk.js"></script>
+
+    <script src='//libtl.com/sdk.js' data-zone='10390421' data-sdk='show_10390421'></script>
+
     <style>
         :root { --gold: #f3ba2f; --dark: #080a0c; --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); --red: #f42a41; --green: #006a4e; }
         body { background: var(--dark); color: #fff; text-align: center; font-family: 'Inter', sans-serif; margin: 0; padding: 0; user-select: none; overflow-x: hidden; }
@@ -54,7 +59,7 @@
 
     <div class="header">
         <div class="stat-box"><span>PROFIT/HR</span><br><span id="pph-val" class="stat-value">0</span></div>
-        <div class="stat-box"><span>ADS</span><br><span id="ads-count" class="stat-value">0</span></div>
+        <div class="stat-box"><span>TOTAL ADS</span><br><span id="ads-count" class="stat-value">0</span></div>
     </div>
 
     <div id="tab-home" class="tab-content active-tab">
@@ -69,16 +74,23 @@
     </div>
 
     <div id="tab-mine" class="tab-content">
-        <h3 style="text-align:left; color:var(--red);">⛏️ RED NODES SHOP</h3>
+        <h3 style="text-align:left; color:var(--red);">⛏️ MINING RIGS</h3>
         <div id="shop-container" class="grid"></div>
     </div>
 
     <div id="tab-tasks" class="tab-content">
-        <h3 style="text-align:left; color:var(--gold);">📋 TASK LIST</h3>
+        <h3 style="text-align:left; color:var(--gold);">📋 REWARD TASKS</h3>
+        
         <div class="task-btn">
-            <div><b>📺 Reward Video</b><br><small style="color:var(--gold);">+5,000 Coins</small></div>
-            <button class="claim-btn" onclick="showAd()">WATCH</button>
+            <div><b>📺 Watch Ad (Special)</b><br><small style="color:var(--gold);">+10,000 Coins</small></div>
+            <button class="claim-btn" onclick="showNewAd()">WATCH</button>
         </div>
+
+        <div class="task-btn">
+            <div><b>📽️ Video Bonus</b><br><small style="color:var(--gold);">+5,000 Coins</small></div>
+            <button class="claim-btn" onclick="showAdsgram()">START</button>
+        </div>
+
         <div class="task-btn">
             <div><b>📢 Join Channel</b><br><small style="color:var(--gold);">+10,000 Coins</small></div>
             <button id="t1" class="claim-btn" onclick="doTask('t1', 10000, 'https://t.me/PistoTap_bot')">JOIN</button>
@@ -113,7 +125,6 @@
         const uid = (tg.initDataUnsafe.user?.id || "user_test").toString();
         const uRef = doc(db, "users", uid);
 
-        // ৮টি ভিন্ন ভিন্ন কার্ডের তালিকা
         const nodes = [
             { id: "c1", name: "Bronze Node", price: 10000, profit: 500 },
             { id: "c2", name: "Silver Node", price: 50000, profit: 2800 },
@@ -127,18 +138,28 @@
 
         async function init() {
             let p = 0; const l = setInterval(() => { p+=20; document.getElementById('loader-fill').style.width=p+'%'; if(p>=100){clearInterval(l); document.getElementById('loader').style.display='none';}}, 150);
-
             const s = await getDoc(uRef);
             if(s.exists()){
-                const d = s.data();
-                bal = d.balance || 0; nrg = d.energy || 1000;
+                const d = s.data(); bal = d.balance || 0; nrg = d.energy || 1000;
                 pph = d.pph || 0; ads = d.ads || 0;
             } else { await setDoc(uRef, { balance: 0, energy: 1000, pph: 0, ads: 0 }); }
             render(); genShop(); loops();
         }
 
-        // Adsgram Updated with ID: 20424
-        window.showAd = async () => {
+        // New Ad Network (ID: 10390421) Function
+        window.showNewAd = () => {
+            show_10390421().then(async () => {
+                bal += 10000; ads++; render();
+                await updateDoc(uRef, { balance: bal, ads: ads });
+                confetti();
+                tg.showAlert('🎉 You have received 10,000 bonus coins!');
+            }).catch(e => {
+                tg.showAlert('Ad not available right now.');
+            });
+        };
+
+        // Adsgram Function (ID: 20424)
+        window.showAdsgram = async () => {
             const controller = window.Adsgram.init({ blockId: "20424" });
             try {
                 const res = await controller.show();
@@ -147,30 +168,24 @@
                     await updateDoc(uRef, { balance: bal, ads: ads });
                     confetti(); tg.showAlert("Success: +5,000 Coins!");
                 }
-            } catch (e) { 
-                tg.showAlert("Ad not ready! Make sure you are using Telegram App."); 
-            }
+            } catch (e) { tg.showAlert("Video not ready!"); }
         };
 
         window.doTask = (id, reward, link) => {
             window.open(link, '_blank');
-            const b = document.getElementById(id);
-            b.innerText = "WAITING...";
+            const b = document.getElementById(id); b.innerText = "WAITING...";
             setTimeout(async () => {
-                bal += reward; render();
-                await updateDoc(uRef, { balance: bal });
-                b.innerText = "DONE"; b.disabled = true;
-                confetti();
+                bal += reward; render(); await updateDoc(uRef, { balance: bal });
+                b.innerText = "DONE"; b.disabled = true; confetti();
             }, 5000);
         };
 
         window.buyNode = async (id, pr, pf) => {
             if(bal >= pr) {
-                bal -= pr; pph += pf;
-                render();
+                bal -= pr; pph += pf; render();
                 await updateDoc(uRef, { balance: bal, pph: pph });
                 confetti();
-            } else tg.showAlert("Not enough coins to upgrade!");
+            } else tg.showAlert("Need more coins!");
         };
 
         function loops() {
@@ -197,8 +212,9 @@
         window.mine = (e) => {
             if(nrg < 1) return; bal++; nrg--; render();
             const p = document.createElement('div'); p.innerText = '+1'; p.className = 'plus-one';
-            p.style.left = (e.pageX || e.touches[0].pageX) + 'px'; 
-            p.style.top = (e.pageY || e.touches[0].pageY) + 'px';
+            const x = e.pageX || (e.touches ? e.touches[0].pageX : 0);
+            const y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
+            p.style.left = x + 'px'; p.style.top = y + 'px';
             document.body.appendChild(p); setTimeout(() => p.remove(), 700);
         };
 
