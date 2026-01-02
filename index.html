@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pisto Miner V2 - Ultimate Edition</title>
+    <title>Pisto Miner V2 - Leaderboard Edition</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -23,35 +23,31 @@
         .stat-value { color: var(--gold); font-weight: 800; font-size: 13px; }
 
         .tab-content { display: none; padding: 20px; padding-bottom: 120px; }
-        .active-tab { display: block; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .active-tab { display: block; animation: slideUp 0.3s; }
+        @keyframes slideUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .main-balance { font-size: 40px; margin: 20px 0; font-weight: 900; display: flex; align-items: center; justify-content: center; }
-        .main-balance img { width: 42px; height: 42px; border-radius: 50%; margin-right: 12px; border: 2px solid var(--gold); }
+        .main-balance { font-size: 38px; margin: 20px 0; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+        .main-balance img { width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; border: 2px solid var(--gold); }
 
-        .coin-btn { width: 210px; height: 210px; border-radius: 50%; border: 10px solid #1a1d23; cursor: pointer; transition: 0.1s; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .coin-btn { width: 200px; height: 200px; border-radius: 50%; border: 8px solid #1a1d23; cursor: pointer; transition: 0.1s; }
         .coin-btn:active { transform: scale(0.92); }
 
-        .bd-text { font-weight: 900; font-size: 16px; margin-top: 15px; }
-        .bd-green { color: var(--green); }
-        .bd-red { color: var(--red); }
-
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .card { background: linear-gradient(145deg, #1a0000, #080a0c); border: 1px solid var(--glass-border); padding: 12px; border-radius: 15px; text-align: left; position: relative; }
+        .card { background: linear-gradient(145deg, #1a0000, #080a0c); border: 1px solid var(--glass-border); padding: 12px; border-radius: 15px; text-align: left; }
         .locked-card { opacity: 0.5; filter: grayscale(1); }
-        .buy-btn { background: var(--gold); color: #000; border: none; padding: 8px; width: 100%; border-radius: 8px; font-weight: 900; cursor: pointer; margin-top: 8px; font-size: 12px; }
+        .buy-btn { background: var(--gold); color: #000; border: none; padding: 10px; width: 100%; border-radius: 10px; font-weight: 900; cursor: pointer; margin-top: 8px; font-size: 11px; }
 
-        /* Task & Withdraw Style */
-        .task-item { background: var(--glass); padding: 15px; border-radius: 15px; border: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .claim-btn { background: var(--green); color: #fff; border: none; padding: 10px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .withdraw-card { background: #111; border: 1px dashed var(--gold); padding: 20px; border-radius: 20px; margin-bottom: 20px; }
+        /* Referral & Leaderboard Style */
+        .ref-box { background: var(--glass); border: 1px solid var(--glass-border); padding: 20px; border-radius: 20px; margin-bottom: 20px; }
+        .leaderboard-list { background: rgba(0,0,0,0.3); border-radius: 15px; overflow: hidden; margin-top: 15px; }
+        .lb-item { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--glass-border); font-size: 14px; }
+        .lb-item:nth-child(1) { color: var(--gold); background: rgba(243, 186, 47, 0.1); }
+        
+        .invite-btn { background: var(--gold); color: #000; border: none; padding: 12px; width: 100%; border-radius: 12px; font-weight: 900; cursor: pointer; margin-top: 10px; }
 
-        .footer { position: fixed; bottom: 15px; left: 5%; width: 90%; background: rgba(18, 22, 28, 0.98); border: 1px solid var(--glass-border); display: flex; justify-content: space-around; padding: 12px 0; border-radius: 22px; z-index: 1000; }
-        .nav-item { font-size: 11px; color: #666; cursor: pointer; text-align: center; }
+        .footer { position: fixed; bottom: 15px; left: 5%; width: 90%; background: rgba(18, 22, 28, 0.98); border: 1px solid var(--glass-border); display: flex; justify-content: space-around; padding: 12px 0; border-radius: 22px; z-index: 1000; backdrop-filter: blur(10px); }
+        .nav-item { font-size: 10px; color: #666; cursor: pointer; text-align: center; font-weight: bold; }
         .nav-item.active { color: var(--gold); }
-
-        .plus-one { position: absolute; color: var(--gold); font-size: 26px; font-weight: 900; animation: floatUp 0.8s forwards; pointer-events: none; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-110px); } }
     </style>
 </head>
 <body>
@@ -69,43 +65,52 @@
     <div id="tab-home" class="tab-content active-tab">
         <div class="main-balance"><img src="https://i.ibb.co.com/bj9kTWJ5/Chat-GPT-Image-Jan-1-2026-01-45-44-PM.png"><span id="balance">0</span></div>
         <img src="https://i.ibb.co.com/bj9kTWJ5/Chat-GPT-Image-Jan-1-2026-01-45-44-PM.png" class="coin-btn" onclick="mine(event)">
-        <div class="bd-text"><span style="color:var(--gold)">PISTO</span> <span class="bd-green">POWERED BY</span> <span class="bd-red">BANGLADESH 🇧🇩</span></div>
-        <button onclick="watchFixedAd()" style="background:var(--red); color:white; border:none; padding:15px; border-radius:12px; margin-top:20px; width:85%; font-weight:900; cursor:pointer;">📺 WATCH AD (+2K)</button>
+        <p style="font-weight:900;"><span style="color:var(--gold)">PISTO</span> <span style="color:var(--green)">POWERED BY</span> <span style="color:var(--red)">BD 🇧🇩</span></p>
+        <button onclick="watchFixedAd()" style="background:var(--red); color:white; border:none; padding:15px; border-radius:12px; width:85%; font-weight:900; cursor:pointer;">📺 WATCH AD (+2,000)</button>
     </div>
 
     <div id="tab-mine" class="tab-content">
-        <h3 style="text-align:left; color:var(--gold);">⛏️ MINING RIGS (15)</h3>
+        <h3 style="text-align:left; color:var(--gold);">⛏️ MINING RIGS</h3>
         <div id="shop-container" class="grid"></div>
     </div>
 
+    <div id="tab-ref" class="tab-content">
+        <div class="ref-box">
+            <h3 style="margin:0; color:var(--gold);">INVITE FRIENDS</h3>
+            <p style="font-size:12px;">Get 50,000 Coins per invite!</p>
+            <button class="invite-btn" onclick="copyRefLink()">🔗 SHARE INVITE LINK</button>
+        </div>
+
+        <h3 style="text-align:left; color:var(--gold); margin-bottom:10px;">🏆 TOP REFERRERS</h3>
+        <div id="leaderboard" class="leaderboard-list">
+            <div class="lb-item"><span>Loading Rankings...</span></div>
+        </div>
+    </div>
+
     <div id="tab-withdraw" class="tab-content">
-        <div class="withdraw-card">
-            <h2 style="color:var(--gold); margin:0;">WITHDRAW</h2>
-            <p style="color:var(--red); font-weight:bold; font-size:14px;">STATUS: COMING SOON</p>
-            <small style="color:#888;">Roadmap: Phase 4 (March 2026)</small>
+        <div style="border:1px dashed var(--gold); padding:20px; border-radius:20px; background:#111;">
+            <h2 style="color:var(--gold); margin:0;">CASH OUT</h2>
+            <p style="color:var(--red); font-weight:bold; margin:5px 0;">LAUNCH: 16 DEC 2028</p>
+            <small style="color:#666;">Snapshot Phase: Q3 2027</small>
         </div>
-
-        <h3 style="text-align:left; color:var(--gold);">📋 TASKS</h3>
-        <div class="task-item">
-            <div><b>Join Channel</b><br><small style="color:var(--gold);">+10,000 Coins</small></div>
-            <button id="tg-btn" class="claim-btn" onclick="handleTgTask()">JOIN</button>
-        </div>
-
-        <div class="task-item">
-            <div><b>Watch Bonus Ad</b><br><small style="color:var(--gold);">+2,000 Coins</small></div>
-            <button class="claim-btn" onclick="watchFixedAd()">START</button>
+        
+        <h3 style="text-align:left; color:var(--gold); margin-top:25px;">🎁 TASKS</h3>
+        <div style="background:var(--glass); padding:15px; border-radius:15px; border:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center;">
+            <div><b>Join Telegram</b><br><small style="color:var(--gold);">+10,000 Coins</small></div>
+            <button id="tg-btn" style="background:var(--green); color:white; border:none; padding:8px 15px; border-radius:8px; font-weight:bold;" onclick="handleTgTask()">JOIN</button>
         </div>
     </div>
 
     <div class="footer">
         <div class="nav-item active" onclick="showTab('tab-home', this)">🏠<br>Home</div>
         <div class="nav-item" onclick="showTab('tab-mine', this)">⛏️<br>Mine</div>
-        <div class="nav-item" onclick="showTab('tab-withdraw', this)">💰<br>Withdraw</div>
+        <div class="nav-item" onclick="showTab('tab-ref', this)">🏆<br>Rank</div>
+        <div class="nav-item" onclick="showTab('tab-withdraw', this)">💰<br>Cash</div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDTpsebnsHvl9RI9hjkA3VnRY9-NX0ESo8",
@@ -121,78 +126,71 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let bal = 0, nrg = 1000, pph = 0, ads = 0, tgDone = false;
-        const uid = (tg.initDataUnsafe.user?.id || "user_pisto").toString();
+        let bal = 0, pph = 0, ads = 0;
+        const uid = (tg.initDataUnsafe.user?.id || "pisto_user").toString();
+        const uname = tg.initDataUnsafe.user?.first_name || "Anonymous";
         const uRef = doc(db, "users", uid);
+        const refLink = `https://t.me/PistoTap_bot?start=${uid}`;
 
-        // ১৫টি কার্ডের তালিকা
-        const nodes = [
-            { id: 1, name: "Node 01", price: 10000, profit: 450, ads: 0 },
-            { id: 2, name: "Node 02", price: 50000, profit: 2400, ads: 5 },
-            { id: 3, name: "Node 03", price: 150000, profit: 8000, ads: 10 },
-            { id: 4, name: "Node 04", price: 500000, profit: 28000, ads: 20 },
-            { id: 5, name: "Node 05", price: 2000000, profit: 120000, ads: 35 },
-            { id: 6, name: "Node 06", price: 10000000, profit: 650000, ads: 55 },
-            { id: 7, name: "Node 07", price: 50000000, profit: 3500000, ads: 80 },
-            { id: 8, name: "Node 08", price: 200000000, profit: 15000000, ads: 120 },
-            { id: 9, name: "Node 09", price: 1000000000, profit: 85000000, ads: 180 },
-            { id: 10, name: "Node 10", price: 5000000000, profit: 450000000, ads: 260 },
-            { id: 11, name: "Node 11", price: 20000000000, profit: 2000000000, ads: 380 },
-            { id: 12, name: "Node 12", price: 80000000000, profit: 9000000000, ads: 520 },
-            { id: 13, name: "Node 13", price: 250000000000, profit: 30000000000, ads: 700 },
-            { id: 14, name: "Node 14", price: 1000000000000, profit: 150000000000, ads: 950 },
-            { id: 15, name: "Pisto Boss", price: 5000000000000, profit: 800000000000, ads: 1300 }
-        ];
+        const nodes = Array.from({length: 15}, (_, i) => ({
+            id: i+1, name: `Industrial Node V${i+1}`, price: (i+1)*30000, profit: (i+1)*1500, ads: i*6
+        }));
 
         async function init() {
-            let p = 0; const l = setInterval(() => { p+=20; document.getElementById('loader-fill').style.width=p+'%'; if(p>=100){clearInterval(l); document.getElementById('loader').style.display='none';}}, 150);
+            let p = 0; const l = setInterval(() => { p+=25; document.getElementById('loader-fill').style.width=p+'%'; if(p>=100){clearInterval(l); document.getElementById('loader').style.display='none';}}, 150);
+            
             const s = await getDoc(uRef);
             if(s.exists()){
-                const d = s.data(); bal = d.balance || 0; nrg = d.energy || 1000;
-                pph = d.pph || 0; ads = d.ads || 0; tgDone = d.tgDone || false;
-            } else { await setDoc(uRef, { balance: 0, energy: 1000, pph: 0, ads: 0, tgDone: false }); }
-            if(tgDone) { document.getElementById('tg-btn').innerText = "DONE"; document.getElementById('tg-btn').disabled = true; }
-            render(); genShop(); loops();
+                const d = s.data(); bal = d.balance || 0; pph = d.pph || 0; ads = d.ads || 0;
+            } else {
+                const urlParams = new URLSearchParams(window.location.search);
+                const inviter = urlParams.get('start');
+                if(inviter && inviter !== uid) {
+                    await updateDoc(doc(db, "users", inviter), { balance: increment(50000), refCount: increment(1) });
+                }
+                await setDoc(uRef, { balance: 1000, pph: 0, ads: 0, refCount: 0, name: uname });
+            }
+            render(); genShop(); loops(); loadLeaderboard();
         }
 
-        // Ad Logic
+        async function loadLeaderboard() {
+            const q = query(collection(db, "users"), orderBy("refCount", "desc"), limit(10));
+            const snap = await getDocs(q);
+            let h = ""; let i = 1;
+            snap.forEach(d => {
+                const u = d.data();
+                h += `<div class="lb-item"><span>#${i} ${u.name || 'User'}</span><b>${u.refCount || 0} Refs</b></div>`;
+                i++;
+            });
+            document.getElementById('leaderboard').innerHTML = h || '<div class="lb-item">No referrals yet</div>';
+        }
+
+        window.copyRefLink = () => {
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent("⛏️ Join Pisto Miner and get 50,000 coins bonus! Limited time.")}`;
+            tg.openTelegramLink(shareUrl);
+        };
+
         window.watchFixedAd = () => {
             show_10390421().then(async () => {
                 bal += 2000; ads++; render(); genShop();
                 await updateDoc(uRef, { balance: bal, ads: ads });
                 confetti();
-            }).catch(() => tg.showAlert('Ad not ready.'));
+            });
         };
 
-        // Telegram Task Logic
-        window.handleTgTask = () => {
-            window.open('https://t.me/PistoTap_bot', '_blank');
-            const btn = document.getElementById('tg-btn');
-            btn.innerText = "WAITING...";
-            setTimeout(async () => {
-                bal += 10000; tgDone = true; render();
-                btn.innerText = "DONE"; btn.disabled = true;
-                await updateDoc(uRef, { balance: bal, tgDone: true });
-                confetti();
-                tg.showAlert('10,000 Coins added for joining!');
-            }, 5000);
-        };
-
-        window.buyNode = async (id, price, profit, reqAds) => {
-            if(ads < reqAds) {
-                tg.showAlert(`Watch ${reqAds} ads total. Current: ${ads}`);
-                return;
-            }
-            if(bal >= price) {
-                bal -= price; pph += profit; render(); genShop();
+        window.buyNode = async (id, pr, pf, req) => {
+            if(ads < req) { tg.showAlert(`Watch ${req} ads total to unlock.`); return; }
+            if(bal >= pr) {
+                bal -= pr; pph += pf; render(); genShop();
                 await updateDoc(uRef, { balance: bal, pph: pph });
                 confetti();
             } else tg.showAlert("Need more coins!");
         };
 
         function loops() {
-            setInterval(() => { if(pph > 0) bal += (pph/3600); if(nrg < 1000) nrg++; render(); }, 1000);
-            setInterval(() => updateDoc(uRef, { balance: bal, energy: nrg }), 25000);
+            setInterval(() => { if(pph > 0) bal += (pph/3600); render(); }, 1000);
+            setInterval(() => updateDoc(uRef, { balance: bal }), 20000);
+            setInterval(loadLeaderboard, 60000); // Refresh LB every minute
         }
 
         function render() {
@@ -203,13 +201,13 @@
 
         function genShop() {
             let h = ""; nodes.forEach(n => {
-                const locked = ads < n.ads;
-                h += `<div class="card ${locked ? 'locked-card' : ''}">
-                    <b style="font-size:12px;">${n.name}</b><br>
+                const isLocked = ads < n.ads;
+                h += `<div class="card ${isLocked ? 'locked-card' : ''}">
+                    <b style="font-size:11px;">${n.name}</b><br>
                     <small style="color:var(--gold);">+${n.profit.toLocaleString()}/h</small><br>
-                    <small style="font-size:9px; color:#666;">Req: ${n.ads} Ads</small>
+                    <small style="font-size:9px;">Req: ${n.ads} Ads</small>
                     <button class="buy-btn" onclick="buyNode(${n.id}, ${n.price}, ${n.profit}, ${n.ads})">
-                        ${locked ? 'LOCKED' : '💰 ' + n.price.toLocaleString()}
+                        ${isLocked ? 'LOCKED' : '💰 ' + n.price.toLocaleString()}
                     </button>
                 </div>`;
             });
@@ -217,11 +215,9 @@
         }
 
         window.mine = (e) => {
-            if(nrg < 1) return; bal++; nrg--; render();
+            bal++; render();
             const p = document.createElement('div'); p.innerText = '+1'; p.className = 'plus-one';
-            const x = e.pageX || (e.touches ? e.touches[0].pageX : 0);
-            const y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
-            p.style.left = x + 'px'; p.style.top = y + 'px';
+            p.style.left = (e.pageX || e.touches[0].pageX) + 'px'; p.style.top = (e.pageY || e.touches[0].pageY) + 'px';
             document.body.appendChild(p); setTimeout(() => p.remove(), 700);
         };
 
