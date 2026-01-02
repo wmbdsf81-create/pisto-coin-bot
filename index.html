@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pisto Miner V2 - Leaderboard Edition</title>
+    <title>Pisto Miner V2 - Final Edition</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -22,28 +22,30 @@
         .stat-box { background: var(--glass); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 12px; min-width: 90px; }
         .stat-value { color: var(--gold); font-weight: 800; font-size: 13px; }
 
-        .tab-content { display: none; padding: 20px; padding-bottom: 120px; }
-        .active-tab { display: block; animation: slideUp 0.3s; }
-        @keyframes slideUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .tab-content { display: none; padding: 20px; padding-bottom: 120px; text-align: left; }
+        .active-tab { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .main-balance { font-size: 38px; margin: 20px 0; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+        .main-balance { font-size: 38px; margin: 20px 0; font-weight: 900; display: flex; align-items: center; justify-content: center; text-align: center; }
         .main-balance img { width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; border: 2px solid var(--gold); }
 
-        .coin-btn { width: 200px; height: 200px; border-radius: 50%; border: 8px solid #1a1d23; cursor: pointer; transition: 0.1s; }
+        .coin-btn { width: 200px; height: 200px; border-radius: 50%; border: 8px solid #1a1d23; cursor: pointer; transition: 0.1s; display: block; margin: 0 auto; }
         .coin-btn:active { transform: scale(0.92); }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .card { background: linear-gradient(145deg, #1a0000, #080a0c); border: 1px solid var(--glass-border); padding: 12px; border-radius: 15px; text-align: left; }
-        .locked-card { opacity: 0.5; filter: grayscale(1); }
+        .card { background: linear-gradient(145deg, #1a0000, #080a0c); border: 1px solid var(--glass-border); padding: 12px; border-radius: 15px; }
         .buy-btn { background: var(--gold); color: #000; border: none; padding: 10px; width: 100%; border-radius: 10px; font-weight: 900; cursor: pointer; margin-top: 8px; font-size: 11px; }
 
-        /* Referral & Leaderboard Style */
-        .ref-box { background: var(--glass); border: 1px solid var(--glass-border); padding: 20px; border-radius: 20px; margin-bottom: 20px; }
-        .leaderboard-list { background: rgba(0,0,0,0.3); border-radius: 15px; overflow: hidden; margin-top: 15px; }
-        .lb-item { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid var(--glass-border); font-size: 14px; }
-        .lb-item:nth-child(1) { color: var(--gold); background: rgba(243, 186, 47, 0.1); }
-        
-        .invite-btn { background: var(--gold); color: #000; border: none; padding: 12px; width: 100%; border-radius: 12px; font-weight: 900; cursor: pointer; margin-top: 10px; }
+        /* Roadmap UI */
+        .roadmap-list { margin-top: 20px; border-left: 2px solid var(--gold); padding-left: 15px; margin-left: 10px; }
+        .roadmap-item { position: relative; margin-bottom: 25px; }
+        .roadmap-item::before { content: ''; position: absolute; left: -21px; top: 5px; width: 10px; height: 10px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 10px var(--gold); }
+        .roadmap-phase { color: var(--gold); font-weight: bold; font-size: 12px; }
+        .roadmap-title { font-weight: bold; font-size: 15px; display: block; }
+        .roadmap-desc { font-size: 12px; color: #aaa; }
+
+        .task-item { background: var(--glass); padding: 15px; border-radius: 15px; border: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .claim-btn { background: var(--green); color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
 
         .footer { position: fixed; bottom: 15px; left: 5%; width: 90%; background: rgba(18, 22, 28, 0.98); border: 1px solid var(--glass-border); display: flex; justify-content: space-around; padding: 12px 0; border-radius: 22px; z-index: 1000; backdrop-filter: blur(10px); }
         .nav-item { font-size: 10px; color: #666; cursor: pointer; text-align: center; font-weight: bold; }
@@ -53,7 +55,7 @@
 <body>
 
     <div id="loader">
-        <h2 style="color:var(--gold);">PISTO MINER V2</h2>
+        <h2 style="color:var(--gold);">PISTO MINER</h2>
         <div class="loader-bar-bg"><div id="loader-fill" class="loader-bar-fill"></div></div>
     </div>
 
@@ -62,7 +64,7 @@
         <div class="stat-box"><span>ADS</span><br><span id="ads-count" class="stat-value">0</span></div>
     </div>
 
-    <div id="tab-home" class="tab-content active-tab">
+    <div id="tab-home" class="tab-content active-tab" style="text-align: center;">
         <div class="main-balance"><img src="https://i.ibb.co.com/bj9kTWJ5/Chat-GPT-Image-Jan-1-2026-01-45-44-PM.png"><span id="balance">0</span></div>
         <img src="https://i.ibb.co.com/bj9kTWJ5/Chat-GPT-Image-Jan-1-2026-01-45-44-PM.png" class="coin-btn" onclick="mine(event)">
         <p style="font-weight:900;"><span style="color:var(--gold)">PISTO</span> <span style="color:var(--green)">POWERED BY</span> <span style="color:var(--red)">BD 🇧🇩</span></p>
@@ -70,34 +72,40 @@
     </div>
 
     <div id="tab-mine" class="tab-content">
-        <h3 style="text-align:left; color:var(--gold);">⛏️ MINING RIGS</h3>
+        <h3 style="color:var(--gold); margin-top:0;">⛏️ MINING RIGS</h3>
         <div id="shop-container" class="grid"></div>
     </div>
 
     <div id="tab-ref" class="tab-content">
-        <div class="ref-box">
-            <h3 style="margin:0; color:var(--gold);">INVITE FRIENDS</h3>
-            <p style="font-size:12px;">Get 50,000 Coins per invite!</p>
-            <button class="invite-btn" onclick="copyRefLink()">🔗 SHARE INVITE LINK</button>
-        </div>
-
-        <h3 style="text-align:left; color:var(--gold); margin-bottom:10px;">🏆 TOP REFERRERS</h3>
-        <div id="leaderboard" class="leaderboard-list">
-            <div class="lb-item"><span>Loading Rankings...</span></div>
-        </div>
+        <h3 style="color:var(--gold); margin-top:0;">👥 REFERRALS</h3>
+        <button class="buy-btn" style="padding:15px; font-size:14px;" onclick="copyRefLink()">🔗 INVITE FRIENDS (+50K)</button>
+        <h4 style="margin-top:20px; color:var(--gold);">🏆 TOP RANKINGS</h4>
+        <div id="leaderboard" style="background:rgba(255,255,255,0.02); border-radius:15px; padding:10px;"></div>
     </div>
 
     <div id="tab-withdraw" class="tab-content">
-        <div style="border:1px dashed var(--gold); padding:20px; border-radius:20px; background:#111;">
+        <div style="background:linear-gradient(90deg, #1a0000, #000); border:1px dashed var(--gold); padding:20px; border-radius:20px; text-align: center;">
             <h2 style="color:var(--gold); margin:0;">CASH OUT</h2>
             <p style="color:var(--red); font-weight:bold; margin:5px 0;">LAUNCH: 16 DEC 2028</p>
-            <small style="color:#666;">Snapshot Phase: Q3 2027</small>
         </div>
-        
-        <h3 style="text-align:left; color:var(--gold); margin-top:25px;">🎁 TASKS</h3>
-        <div style="background:var(--glass); padding:15px; border-radius:15px; border:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center;">
-            <div><b>Join Telegram</b><br><small style="color:var(--gold);">+10,000 Coins</small></div>
-            <button id="tg-btn" style="background:var(--green); color:white; border:none; padding:8px 15px; border-radius:8px; font-weight:bold;" onclick="handleTgTask()">JOIN</button>
+
+        <h3 style="color:var(--gold); margin-top:25px;">📋 COMPLETE TASKS</h3>
+        <div id="task-list">
+            <div class="task-item"><div><b>Telegram Channel</b><br><small>+10,000 Pisto</small></div><button class="claim-btn" onclick="handleTask('tg', 10000)">JOIN</button></div>
+            <div class="task-item"><div><b>Follow on X</b><br><small>+15,000 Pisto</small></div><button class="claim-btn" onclick="handleTask('x', 15000)">FOLLOW</button></div>
+            <div class="task-item"><div><b>YouTube Subscribe</b><br><small>+20,000 Pisto</small></div><button class="claim-btn" onclick="handleTask('yt', 20000)">WATCH</button></div>
+        </div>
+
+        <h3 style="color:var(--gold); margin-top:30px;">🚀 OFFICIAL ROADMAP</h3>
+        <div class="roadmap-list">
+            <div class="roadmap-item"><span class="roadmap-phase">Phase 1</span><span class="roadmap-title">Platform Foundation</span><span class="roadmap-desc">Global launch & 100k community goal (Q1 2026).</span></div>
+            <div class="roadmap-item"><span class="roadmap-phase">Phase 2</span><span class="roadmap-title">Ecosystem Growth</span><span class="roadmap-desc">Daily task system and leaderboard rewards.</span></div>
+            <div class="roadmap-item"><span class="roadmap-phase">Phase 3</span><span class="roadmap-title">Partnership & Revenue</span><span class="roadmap-desc">Ad-revenue sharing for active miners (2027).</span></div>
+            <div class="roadmap-item"><span class="roadmap-phase">Phase 4</span><span class="roadmap-title">Tokenomics Release</span><span class="roadmap-desc">$PISTO token supply and Whitepaper release.</span></div>
+            <div class="roadmap-item"><span class="roadmap-phase">Phase 5</span><span class="roadmap-title">Verification Phase</span><span class="roadmap-desc">Anti-bot cleanup and Phase 1 Snapshot (2028).</span></div>
+            <div class="roadmap-item"><span class="roadmap-phase">Phase 6</span><span class="roadmap-title">Security Audit</span><span class="roadmap-desc">KYC system and Smart Contract Audit.</span></div>
+            <div class="roadmap-item"><span class="roadmap-phase">Phase 7</span><span class="roadmap-title">Airdrop Distribution</span><span class="roadmap-desc">Token distribution to verified wallets.</span></div>
+            <div class="roadmap-item" style="border:1px solid var(--green); padding:10px; border-radius:10px;"><span class="roadmap-phase" style="color:var(--green);">Phase 8</span><span class="roadmap-title">GRAND LAUNCH</span><span class="roadmap-desc">16 DEC 2028: CEX Listing & Withdrawal Open.</span></div>
         </div>
     </div>
 
@@ -105,7 +113,7 @@
         <div class="nav-item active" onclick="showTab('tab-home', this)">🏠<br>Home</div>
         <div class="nav-item" onclick="showTab('tab-mine', this)">⛏️<br>Mine</div>
         <div class="nav-item" onclick="showTab('tab-ref', this)">🏆<br>Rank</div>
-        <div class="nav-item" onclick="showTab('tab-withdraw', this)">💰<br>Cash</div>
+        <div class="nav-item" onclick="showTab('tab-withdraw', this)">💰<br>Roadmap</div>
     </div>
 
     <script type="module">
@@ -128,17 +136,16 @@
 
         let bal = 0, pph = 0, ads = 0;
         const uid = (tg.initDataUnsafe.user?.id || "pisto_user").toString();
-        const uname = tg.initDataUnsafe.user?.first_name || "Anonymous";
+        const uname = tg.initDataUnsafe.user?.first_name || "Guest";
         const uRef = doc(db, "users", uid);
         const refLink = `https://t.me/PistoTap_bot?start=${uid}`;
 
         const nodes = Array.from({length: 15}, (_, i) => ({
-            id: i+1, name: `Industrial Node V${i+1}`, price: (i+1)*30000, profit: (i+1)*1500, ads: i*6
+            id: i+1, name: `Industrial Node V${i+1}`, price: (i+1)*35000, profit: (i+1)*1800, ads: i*6
         }));
 
         async function init() {
             let p = 0; const l = setInterval(() => { p+=25; document.getElementById('loader-fill').style.width=p+'%'; if(p>=100){clearInterval(l); document.getElementById('loader').style.display='none';}}, 150);
-            
             const s = await getDoc(uRef);
             if(s.exists()){
                 const d = s.data(); bal = d.balance || 0; pph = d.pph || 0; ads = d.ads || 0;
@@ -153,20 +160,28 @@
             render(); genShop(); loops(); loadLeaderboard();
         }
 
+        window.handleTask = (type, reward) => {
+            window.open('https://t.me/PistoTap_bot'); // লিঙ্ক আপনার মতো বসিয়ে দিন
+            setTimeout(async () => {
+                bal += reward; render();
+                await updateDoc(uRef, { balance: bal });
+                confetti();
+                tg.showAlert(`Bonus ${reward} Pisto Added!`);
+            }, 5000);
+        };
+
         async function loadLeaderboard() {
-            const q = query(collection(db, "users"), orderBy("refCount", "desc"), limit(10));
+            const q = query(collection(db, "users"), orderBy("refCount", "desc"), limit(5));
             const snap = await getDocs(q);
-            let h = ""; let i = 1;
-            snap.forEach(d => {
+            let h = ""; snap.forEach(d => {
                 const u = d.data();
-                h += `<div class="lb-item"><span>#${i} ${u.name || 'User'}</span><b>${u.refCount || 0} Refs</b></div>`;
-                i++;
+                h += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #222;"><span>${u.name}</span><b>${u.refCount || 0} Refs</b></div>`;
             });
-            document.getElementById('leaderboard').innerHTML = h || '<div class="lb-item">No referrals yet</div>';
+            document.getElementById('leaderboard').innerHTML = h;
         }
 
         window.copyRefLink = () => {
-            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent("⛏️ Join Pisto Miner and get 50,000 coins bonus! Limited time.")}`;
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent("⛏️ Join Pisto Miner! 50k bonus.")}`;
             tg.openTelegramLink(shareUrl);
         };
 
@@ -190,7 +205,6 @@
         function loops() {
             setInterval(() => { if(pph > 0) bal += (pph/3600); render(); }, 1000);
             setInterval(() => updateDoc(uRef, { balance: bal }), 20000);
-            setInterval(loadLeaderboard, 60000); // Refresh LB every minute
         }
 
         function render() {
@@ -205,9 +219,8 @@
                 h += `<div class="card ${isLocked ? 'locked-card' : ''}">
                     <b style="font-size:11px;">${n.name}</b><br>
                     <small style="color:var(--gold);">+${n.profit.toLocaleString()}/h</small><br>
-                    <small style="font-size:9px;">Req: ${n.ads} Ads</small>
                     <button class="buy-btn" onclick="buyNode(${n.id}, ${n.price}, ${n.profit}, ${n.ads})">
-                        ${isLocked ? 'LOCKED' : '💰 ' + n.price.toLocaleString()}
+                        ${isLocked ? '🔒 ' + n.ads + ' Ads' : '💰 ' + n.price.toLocaleString()}
                     </button>
                 </div>`;
             });
