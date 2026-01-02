@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pisto Coin - Final V2</title>
+    <title>Pisto Miner V2 - Pro Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://adsgram.ai/sdk/v1/adsgram-sdk.js"></script>
@@ -29,9 +29,9 @@
         .coin-btn { width: 210px; height: 210px; border-radius: 50%; border: 10px solid #1a1d23; cursor: pointer; transition: 0.1s; }
         .coin-btn:active { transform: scale(0.92); }
 
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
-        .premium-card { background: linear-gradient(145deg, #7b0000, #2a0000); border: 1px solid var(--red); padding: 12px; border-radius: 15px; text-align: left; }
-        .buy-btn { background: var(--gold); color: #000; border: none; padding: 10px; width: 100%; border-radius: 10px; font-weight: 800; cursor: pointer; margin-top: 8px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .premium-card { background: linear-gradient(145deg, #4d0000, #1a0000); border: 1px solid var(--red); padding: 12px; border-radius: 15px; text-align: left; }
+        .buy-btn { background: var(--gold); color: #000; border: none; padding: 8px; width: 100%; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 8px; font-size: 12px; }
         
         .task-btn { background: #1a1d23; color: #fff; border: 1px solid var(--glass-border); padding: 15px; width: 90%; border-radius: 15px; margin: 10px auto; display: flex; justify-content: space-between; align-items: center; }
         .claim-btn { background: var(--green); color: #fff; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; cursor: pointer; }
@@ -69,18 +69,16 @@
     </div>
 
     <div id="tab-mine" class="tab-content">
-        <h3 style="text-align:left; color:var(--red);">⛏️ RED NODES</h3>
+        <h3 style="text-align:left; color:var(--red);">⛏️ RED NODES SHOP</h3>
         <div id="shop-container" class="grid"></div>
     </div>
 
     <div id="tab-tasks" class="tab-content">
         <h3 style="text-align:left; color:var(--gold);">📋 TASK LIST</h3>
-        
         <div class="task-btn">
-            <div><b>📺 Video Reward</b><br><small style="color:var(--gold);">+5,000 Coins</small></div>
-            <button class="claim-btn" onclick="showAd()">START</button>
+            <div><b>📺 Reward Video</b><br><small style="color:var(--gold);">+5,000 Coins</small></div>
+            <button class="claim-btn" onclick="showAd()">WATCH</button>
         </div>
-
         <div class="task-btn">
             <div><b>📢 Join Channel</b><br><small style="color:var(--gold);">+10,000 Coins</small></div>
             <button id="t1" class="claim-btn" onclick="doTask('t1', 10000, 'https://t.me/PistoTap_bot')">JOIN</button>
@@ -111,14 +109,20 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let bal = 0, nrg = 1000, pph = 0, ads = 0, purchased = [];
+        let bal = 0, nrg = 1000, pph = 0, ads = 0;
         const uid = (tg.initDataUnsafe.user?.id || "user_test").toString();
         const uRef = doc(db, "users", uid);
 
+        // ৮টি ভিন্ন ভিন্ন কার্ডের তালিকা
         const nodes = [
-            { id: "m1", name: "Red Node I", price: 25000, profit: 800 },
-            { id: "m2", name: "Red Node II", price: 100000, profit: 4500 },
-            { id: "m3", name: "Red Node III", price: 500000, profit: 25000 }
+            { id: "c1", name: "Bronze Node", price: 10000, profit: 500 },
+            { id: "c2", name: "Silver Node", price: 50000, profit: 2800 },
+            { id: "c3", name: "Gold Node", price: 200000, profit: 12000 },
+            { id: "c4", name: "Platinum Rig", price: 1000000, profit: 65000 },
+            { id: "c5", name: "Diamond Node", price: 5000000, profit: 350000 },
+            { id: "c6", name: "Ruby Server", price: 25000000, profit: 1800000 },
+            { id: "c7", name: "Quantum Node", price: 100000000, profit: 8000000 },
+            { id: "c8", name: "Pisto Master", price: 500000000, profit: 45000000 }
         ];
 
         async function init() {
@@ -128,13 +132,14 @@
             if(s.exists()){
                 const d = s.data();
                 bal = d.balance || 0; nrg = d.energy || 1000;
-                pph = d.pph || 0; ads = d.ads || 0; purchased = d.purchased || [];
+                pph = d.pph || 0; ads = d.ads || 0;
             } else { await setDoc(uRef, { balance: 0, energy: 1000, pph: 0, ads: 0 }); }
             render(); genShop(); loops();
         }
 
+        // Adsgram Updated with ID: 20424
         window.showAd = async () => {
-            const controller = window.Adsgram.init({ blockId: "20421" });
+            const controller = window.Adsgram.init({ blockId: "20424" });
             try {
                 const res = await controller.show();
                 if (res.done) {
@@ -142,13 +147,15 @@
                     await updateDoc(uRef, { balance: bal, ads: ads });
                     confetti(); tg.showAlert("Success: +5,000 Coins!");
                 }
-            } catch (e) { tg.showAlert("Ad not ready!"); }
+            } catch (e) { 
+                tg.showAlert("Ad not ready! Make sure you are using Telegram App."); 
+            }
         };
 
         window.doTask = (id, reward, link) => {
             window.open(link, '_blank');
             const b = document.getElementById(id);
-            b.innerText = "WAIT...";
+            b.innerText = "WAITING...";
             setTimeout(async () => {
                 bal += reward; render();
                 await updateDoc(uRef, { balance: bal });
@@ -159,16 +166,16 @@
 
         window.buyNode = async (id, pr, pf) => {
             if(bal >= pr) {
-                bal -= pr; pph += pf; purchased.push(id);
-                render(); genShop();
-                await updateDoc(uRef, { balance: bal, pph: pph, purchased: purchased });
+                bal -= pr; pph += pf;
+                render();
+                await updateDoc(uRef, { balance: bal, pph: pph });
                 confetti();
-            } else tg.showAlert("Need more coins!");
+            } else tg.showAlert("Not enough coins to upgrade!");
         };
 
         function loops() {
             setInterval(() => { if(pph > 0) bal += (pph/3600); if(nrg < 1000) nrg++; render(); }, 1000);
-            setInterval(() => updateDoc(uRef, { balance: bal, energy: nrg }), 20000);
+            setInterval(() => updateDoc(uRef, { balance: bal, energy: nrg }), 25000);
         }
 
         function render() {
@@ -181,7 +188,7 @@
 
         function genShop() {
             let h = ""; nodes.forEach(n => {
-                h += `<div class="premium-card"><b>${n.name}</b><br><small>+${n.profit}/h</small>
+                h += `<div class="premium-card"><b>${n.name}</b><br><small style="color:var(--gold);">+${n.profit.toLocaleString()}/h</small>
                 <button class="buy-btn" onclick="buyNode('${n.id}', ${n.price}, ${n.profit})">💰 ${n.price.toLocaleString()}</button></div>`;
             });
             document.getElementById('shop-container').innerHTML = h;
@@ -190,7 +197,8 @@
         window.mine = (e) => {
             if(nrg < 1) return; bal++; nrg--; render();
             const p = document.createElement('div'); p.innerText = '+1'; p.className = 'plus-one';
-            p.style.left = e.pageX+'px'; p.style.top = e.pageY+'px';
+            p.style.left = (e.pageX || e.touches[0].pageX) + 'px'; 
+            p.style.top = (e.pageY || e.touches[0].pageY) + 'px';
             document.body.appendChild(p); setTimeout(() => p.remove(), 700);
         };
 
