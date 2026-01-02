@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pisto Miner V2 - Pro Ads Edition</title>
+    <title>Pisto Miner V2 - Diamond Edition</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -11,7 +11,7 @@
     <script src='//libtl.com/sdk.js' data-zone='10390421' data-sdk='show_10390421'></script>
 
     <style>
-        :root { --gold: #f3ba2f; --dark: #080a0c; --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); --red: #f42a41; --green: #006a4e; }
+        :root { --gold: #f3ba2f; --dark: #080a0c; --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); --red: #f42a41; --green: #006a4e; --vip-glow: #00d2ff; --diamond: #b9f2ff; }
         body { background: var(--dark); color: #fff; text-align: center; font-family: 'Inter', sans-serif; margin: 0; padding: 0; user-select: none; overflow-x: hidden; }
         
         #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #080a0c; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
@@ -19,7 +19,7 @@
         .loader-bar-fill { width: 0%; height: 100%; background: var(--gold); transition: width 0.3s; }
 
         .header { display: flex; justify-content: space-around; padding: 15px; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 100; }
-        .stat-box { background: var(--glass); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 12px; min-width: 90px; }
+        .stat-box { background: var(--glass); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 12px; min-width: 80px; }
         .stat-value { color: var(--gold); font-weight: 800; font-size: 13px; }
 
         .tab-content { display: none; padding: 20px; padding-bottom: 120px; text-align: left; }
@@ -29,43 +29,39 @@
         .main-balance { font-size: 38px; margin: 20px 0; font-weight: 900; display: flex; align-items: center; justify-content: center; text-align: center; }
         .main-balance img { width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; border: 2px solid var(--gold); }
 
-        .coin-btn { width: 200px; height: 200px; border-radius: 50%; border: 8px solid #1a1d23; cursor: pointer; transition: 0.1s; display: block; margin: 0 auto; }
+        .coin-btn { width: 180px; height: 180px; border-radius: 50%; border: 8px solid #1a1d23; cursor: pointer; transition: 0.1s; display: block; margin: 0 auto; }
         .coin-btn:active { transform: scale(0.92); }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .card { background: linear-gradient(145deg, #1a0000, #080a0c); border: 1px solid var(--glass-border); padding: 12px; border-radius: 15px; }
+        
+        /* Diamond Card Style */
+        .diamond-card { background: linear-gradient(145deg, #001220, #000); border: 1px solid var(--diamond); position: relative; }
+        .diamond-icon { color: var(--diamond); font-size: 18px; margin-right: 5px; }
+
         .buy-btn { background: var(--gold); color: #000; border: none; padding: 10px; width: 100%; border-radius: 10px; font-weight: 900; cursor: pointer; margin-top: 8px; font-size: 11px; }
-
-        /* Roadmap UI */
-        .roadmap-list { margin-top: 20px; border-left: 2px solid var(--gold); padding-left: 15px; margin-left: 10px; }
-        .roadmap-item { position: relative; margin-bottom: 25px; }
-        .roadmap-item::before { content: ''; position: absolute; left: -21px; top: 5px; width: 10px; height: 10px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 10px var(--gold); }
-        .roadmap-phase { color: var(--gold); font-weight: bold; font-size: 12px; }
-        .roadmap-title { font-weight: bold; font-size: 15px; display: block; }
-        .roadmap-desc { font-size: 12px; color: #aaa; }
-
-        .task-item { background: var(--glass); padding: 15px; border-radius: 15px; border: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .claim-btn { background: var(--green); color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .claim-btn:disabled { background: #333; color: #777; cursor: not-allowed; }
+        .diamond-btn { background: var(--diamond); }
 
         .footer { position: fixed; bottom: 15px; left: 5%; width: 90%; background: rgba(18, 22, 28, 0.98); border: 1px solid var(--glass-border); display: flex; justify-content: space-around; padding: 12px 0; border-radius: 22px; z-index: 1000; backdrop-filter: blur(10px); }
         .nav-item { font-size: 10px; color: #666; cursor: pointer; text-align: center; font-weight: bold; }
         .nav-item.active { color: var(--gold); }
 
-        .plus-one { position: absolute; color: var(--gold); font-size: 26px; font-weight: 900; animation: floatUp 0.8s forwards; pointer-events: none; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-110px); } }
+        .roadmap-list { border-left: 2px solid var(--gold); padding-left: 15px; margin: 20px 0; }
+        .roadmap-item { position: relative; margin-bottom: 20px; font-size: 13px; }
+        .roadmap-item::before { content: ''; position: absolute; left: -21px; top: 5px; width: 10px; height: 10px; background: var(--gold); border-radius: 50%; }
     </style>
 </head>
 <body>
 
     <div id="loader">
-        <h2 style="color:var(--gold);">PISTO MINER PRO</h2>
+        <h2 style="color:var(--gold);">PISTO DIAMOND</h2>
         <div class="loader-bar-bg"><div id="loader-fill" class="loader-bar-fill"></div></div>
     </div>
 
     <div class="header">
-        <div class="stat-box"><span>PROFIT/HR</span><br><span id="pph-val" class="stat-value">0</span></div>
-        <div class="stat-box"><span>ADS WATCHED</span><br><span id="ads-count" class="stat-value">0</span></div>
+        <div class="stat-box"><span>PPH</span><br><span id="pph-val" class="stat-value">0</span></div>
+        <div class="stat-box"><span>ADS</span><br><span id="ads-count" class="stat-value">0</span></div>
+        <div class="stat-box"><span>DIAMOND</span><br><span id="ref-count" class="stat-value" style="color:var(--diamond);">0</span></div>
     </div>
 
     <div id="tab-home" class="tab-content active-tab" style="text-align: center;">
@@ -76,14 +72,34 @@
     </div>
 
     <div id="tab-mine" class="tab-content">
-        <h3 style="color:var(--gold); margin-top:0;">⛏️ MINING RIGS (15)</h3>
+        <div class="card" style="background:linear-gradient(145deg, #001f3f, #000); border:1px solid var(--vip-glow); margin-bottom:15px;">
+            <b style="color:var(--vip-glow);">💎 MONTHLY VIP MOON-SHOT</b><br>
+            <small>+500,000 PPH | Cost: 5M Coins + 150 Ads</small>
+            <button class="buy-btn" style="background:var(--vip-glow)" onclick="buyVip()">ACTIVATE 30 DAYS</button>
+        </div>
+        <h3 style="color:var(--gold); margin-top:0;">⛏️ INDUSTRIAL RIGS</h3>
         <div id="shop-container" class="grid"></div>
     </div>
 
     <div id="tab-ref" class="tab-content">
-        <h3 style="color:var(--gold); margin-top:0;">👥 RANKINGS</h3>
-        <button class="buy-btn" style="padding:15px; font-size:14px;" onclick="copyRefLink()">🔗 INVITE FRIENDS (+50K)</button>
-        <div id="leaderboard" style="background:rgba(255,255,255,0.02); border-radius:15px; padding:10px; margin-top:20px;"></div>
+        <h3 style="color:var(--diamond); margin-top:0;">💠 DIAMOND REFERRAL RIGS</h3>
+        <div class="grid">
+            <div class="card diamond-card">
+                <b>Diamond Drill V1</b><br>
+                <small>+25,000/h</small><br>
+                <button class="buy-btn diamond-btn" onclick="buyDiamondRig(1, 5, 25000)">💠 Needs 5 Refs</button>
+            </div>
+            <div class="card diamond-card">
+                <b>Diamond Drill V2</b><br>
+                <small>+75,000/h</small><br>
+                <button class="buy-btn diamond-btn" onclick="buyDiamondRig(2, 20, 75000)">💠 Needs 20 Refs</button>
+            </div>
+        </div>
+
+        <button class="buy-btn" style="padding:15px; font-size:14px; margin-top:20px;" onclick="copyRefLink()">🔗 INVITE FRIENDS (+50K)</button>
+        
+        <h4 style="color:var(--gold); margin-top:25px;">🏆 TOP REFERRED LEADERS</h4>
+        <div id="leaderboard" style="background:rgba(255,255,255,0.02); border-radius:15px; padding:10px;"></div>
     </div>
 
     <div id="tab-withdraw" class="tab-content">
@@ -91,40 +107,19 @@
             <h2 style="color:var(--gold); margin:0;">WITHDRAWAL</h2>
             <p style="color:var(--red); font-weight:bold; margin:5px 0;">LAUNCH: 16 DEC 2028</p>
         </div>
-
-        <h3 style="color:var(--gold); margin-top:25px;">🎯 ADS MILESTONES</h3>
-        <div id="ads-tasks">
-            <div class="task-item">
-                <div><b>Watch 10 Ads</b><br><small id="ad-task-1-info">0/10 Watched</small></div>
-                <button id="ad-task-1-btn" class="claim-btn" onclick="claimAdTask(1, 10, 50000)">CLAIM 50K</button>
-            </div>
-            <div class="task-item">
-                <div><b>Watch 50 Ads</b><br><small id="ad-task-2-info">0/50 Watched</small></div>
-                <button id="ad-task-2-btn" class="claim-btn" onclick="claimAdTask(2, 50, 300000)">CLAIM 300K</button>
-            </div>
-            <div class="task-item">
-                <div><b>Watch 100 Ads</b><br><small id="ad-task-3-info">0/100 Watched</small></div>
-                <button id="ad-task-3-btn" class="claim-btn" onclick="claimAdTask(3, 100, 1000000)">CLAIM 1M</button>
-            </div>
-        </div>
-
-        <h3 style="color:var(--gold); margin-top:25px;">🚀 OFFICIAL ROADMAP</h3>
         <div class="roadmap-list">
-            <div class="roadmap-item"><span class="roadmap-phase">Phase 1</span><span class="roadmap-title">Platform Foundation</span><span class="roadmap-desc">Global launch & 100k community goal (Q1 2026).</span></div>
-            <div class="roadmap-item"><span class="roadmap-phase">Phase 2</span><span class="roadmap-title">Ecosystem Growth</span><span class="roadmap-desc">Daily task system and leaderboard rewards.</span></div>
-            <div class="roadmap-item"><span class="roadmap-phase">Phase 3</span><span class="roadmap-title">Partnership & Revenue</span><span class="roadmap-desc">Ad-revenue sharing for active miners (2027).</span></div>
-            <div class="roadmap-item"><span class="roadmap-phase">Phase 4</span><span class="roadmap-title">Tokenomics Release</span><span class="roadmap-desc">$PISTO token supply and Whitepaper release.</span></div>
-            <div class="roadmap-item"><span class="roadmap-phase">Phase 5</span><span class="roadmap-title">Verification Phase</span><span class="roadmap-desc">Anti-bot cleanup and Phase 1 Snapshot (2028).</span></div>
-            <div class="roadmap-item"><span class="roadmap-phase">Phase 6</span><span class="roadmap-title">Security Audit</span><span class="roadmap-desc">KYC system and Smart Contract Audit.</span></div>
-            <div class="roadmap-item"><span class="roadmap-phase">Phase 7</span><span class="roadmap-title">Airdrop Distribution</span><span class="roadmap-desc">Token distribution to verified wallets.</span></div>
-            <div class="roadmap-item" style="border:1px solid var(--green); padding:10px; border-radius:10px;"><span class="roadmap-phase" style="color:var(--green);">Phase 8</span><span class="roadmap-title">GRAND LAUNCH</span><span class="roadmap-desc">16 DEC 2028: CEX Listing & Withdrawal Open.</span></div>
+            <div class="roadmap-item"><b>Phase 1-4:</b> Platform, Ecosystem & Tokenomics (2026-27)</div>
+            <div class="roadmap-item"><b>Phase 5:</b> Verification & Snapshot (Jan 2028)</div>
+            <div class="roadmap-item"><b>Phase 6:</b> Security Audit & KYC (June 2028)</div>
+            <div class="roadmap-item"><b>Phase 7:</b> Airdrop Distribution (Sept 2028)</div>
+            <div class="roadmap-item" style="color:var(--green)"><b>Phase 8:</b> GRAND LAUNCH & CEX LISTING (16 DEC 2028)</div>
         </div>
     </div>
 
     <div class="footer">
         <div class="nav-item active" onclick="showTab('tab-home', this)">🏠<br>Home</div>
         <div class="nav-item" onclick="showTab('tab-mine', this)">⛏️<br>Mine</div>
-        <div class="nav-item" onclick="showTab('tab-ref', this)">🏆<br>Rank</div>
+        <div class="nav-item" onclick="showTab('tab-ref', this)">💠<br>Rank</div>
         <div class="nav-item" onclick="showTab('tab-withdraw', this)">💰<br>Goal</div>
     </div>
 
@@ -146,11 +141,10 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let bal = 0, pph = 0, ads = 0, claimedTasks = [];
+        let bal = 0, pph = 0, ads = 0, refs = 0, ownedDiamondRigs = [];
         const uid = (tg.initDataUnsafe.user?.id || "pisto_user").toString();
         const uname = tg.initDataUnsafe.user?.first_name || "Guest";
         const uRef = doc(db, "users", uid);
-        const refLink = `https://t.me/PistoTap_bot?start=${uid}`;
 
         const nodes = Array.from({length: 15}, (_, i) => ({
             id: i+1, name: `Industrial Node V${i+1}`, price: (i+1)*35000, profit: (i+1)*1800, ads: i*6
@@ -160,69 +154,48 @@
             let p = 0; const l = setInterval(() => { p+=25; document.getElementById('loader-fill').style.width=p+'%'; if(p>=100){clearInterval(l); document.getElementById('loader').style.display='none';}}, 150);
             const s = await getDoc(uRef);
             if(s.exists()){
-                const d = s.data(); bal = d.balance || 0; pph = d.pph || 0; ads = d.ads || 0;
-                claimedTasks = d.claimedTasks || [];
+                const d = s.data(); bal = d.balance || 0; pph = d.pph || 0; ads = d.ads || 0; refs = d.refCount || 0;
+                ownedDiamondRigs = d.ownedDiamondRigs || [];
             } else {
-                await setDoc(uRef, { balance: 1000, pph: 0, ads: 0, refCount: 0, name: uname, claimedTasks: [] });
+                await setDoc(uRef, { balance: 1000, pph: 0, ads: 0, refCount: 0, name: uname, ownedDiamondRigs: [] });
             }
-            render(); genShop(); loops(); loadLeaderboard(); updateTaskUI();
+            render(); genShop(); loops(); loadLeaderboard();
         }
 
-        window.claimAdTask = async (taskId, requiredAds, reward) => {
-            if(ads >= requiredAds && !claimedTasks.includes(taskId)) {
-                bal += reward;
-                claimedTasks.push(taskId);
-                render();
-                updateTaskUI();
-                await updateDoc(uRef, { balance: bal, claimedTasks: claimedTasks });
-                confetti();
-                tg.showAlert(`Success! ${reward.toLocaleString()} Pisto added.`);
-            } else if (claimedTasks.includes(taskId)) {
-                tg.showAlert("Already claimed!");
+        window.buyDiamondRig = async (rigId, reqRefs, profit) => {
+            if(ownedDiamondRigs.includes(rigId)) { tg.showAlert("Already Owned!"); return; }
+            if(refs >= reqRefs) {
+                pph += profit;
+                ownedDiamondRigs.push(rigId);
+                await updateDoc(uRef, { pph: pph, ownedDiamondRigs: ownedDiamondRigs });
+                render(); confetti();
+                tg.showAlert(`Diamond Drill V${rigId} Activated!`);
             } else {
-                tg.showAlert(`You need to watch ${requiredAds - ads} more ads.`);
+                tg.showAlert(`You need ${reqRefs} referrals (Diamonds). Currently: ${refs}`);
             }
         };
 
-        function updateTaskUI() {
-            const taskConfigs = [
-                { id: 1, req: 10 },
-                { id: 2, req: 50 },
-                { id: 3, req: 100 }
-            ];
-            taskConfigs.forEach(t => {
-                const btn = document.getElementById(`ad-task-${t.id}-btn`);
-                const info = document.getElementById(`ad-task-${t.id}-info`);
-                info.innerText = `${ads}/${t.req} Watched`;
-                if(claimedTasks.includes(t.id)) {
-                    btn.innerText = "CLAIMED";
-                    btn.disabled = true;
-                } else if(ads < t.req) {
-                    btn.style.opacity = "0.5";
-                } else {
-                    btn.style.opacity = "1";
-                }
-            });
-        }
+        window.buyVip = async () => {
+            if(ads < 150 || bal < 5000000) { tg.showAlert("Need 150 Ads & 5M Coins!"); return; }
+            bal -= 5000000; pph += 500000;
+            await updateDoc(uRef, { balance: bal, pph: pph });
+            render(); confetti();
+            tg.showAlert("30 Days VIP Active!");
+        };
 
         async function loadLeaderboard() {
             const q = query(collection(db, "users"), orderBy("refCount", "desc"), limit(5));
             const snap = await getDocs(q);
             let h = ""; snap.forEach(d => {
                 const u = d.data();
-                h += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #222;"><span>${u.name}</span><b>${u.refCount || 0} Refs</b></div>`;
+                h += `<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #222;"><span>${u.name}</span><b style="color:var(--diamond)">${u.refCount || 0} 💠</b></div>`;
             });
-            document.getElementById('leaderboard').innerHTML = h || "No rankings yet";
+            document.getElementById('leaderboard').innerHTML = h || "No data";
         }
-
-        window.copyRefLink = () => {
-            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent("⛏️ Join Pisto Miner! 50k bonus.")}`;
-            tg.openTelegramLink(shareUrl);
-        };
 
         window.watchFixedAd = () => {
             show_10390421().then(async () => {
-                bal += 2000; ads++; render(); genShop(); updateTaskUI();
+                bal += 2000; ads++; render(); genShop();
                 await updateDoc(uRef, { balance: bal, ads: ads });
                 confetti();
             });
@@ -246,6 +219,7 @@
             document.getElementById('balance').innerText = Math.floor(bal).toLocaleString();
             document.getElementById('pph-val').innerText = "+" + Math.floor(pph).toLocaleString();
             document.getElementById('ads-count').innerText = ads;
+            document.getElementById('ref-count').innerText = refs;
         }
 
         function genShop() {
@@ -265,7 +239,9 @@
         window.mine = (e) => {
             bal++; render();
             const p = document.createElement('div'); p.innerText = '+1'; p.className = 'plus-one';
+            p.style.position = 'absolute'; p.style.color = 'var(--gold)'; p.style.fontWeight = '900';
             p.style.left = (e.pageX || e.touches[0].pageX) + 'px'; p.style.top = (e.pageY || e.touches[0].pageY) + 'px';
+            p.style.animation = 'floatUp 0.7s forwards';
             document.body.appendChild(p); setTimeout(() => p.remove(), 700);
         };
 
@@ -275,7 +251,15 @@
             document.getElementById(id).classList.add('active-tab'); el.classList.add('active');
         };
 
+        window.copyRefLink = () => {
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent('https://t.me/PistoTap_bot?start='+uid)}&text=Join Pisto Diamond Miner!`;
+            tg.openTelegramLink(shareUrl);
+        };
+
         init();
     </script>
+    <style>
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+    </style>
 </body>
 </html>
