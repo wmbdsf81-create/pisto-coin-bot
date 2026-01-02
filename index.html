@@ -3,104 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pisto Miner V2 - Ultra Edition</title>
+    <title>Pisto Miner V2 - Hard Mode</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
-    <script src="https://adsgram.ai/sdk/v1/adsgram-sdk.js"></script>
-
     <script src='//libtl.com/sdk.js' data-zone='10390421' data-sdk='show_10390421'></script>
 
     <style>
         :root { --gold: #f3ba2f; --dark: #080a0c; --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); --red: #f42a41; --green: #006a4e; }
-        body { background: var(--dark); color: #fff; text-align: center; font-family: 'Inter', sans-serif; margin: 0; padding: 0; user-select: none; overflow-x: hidden; }
+        body { background: var(--dark); color: #fff; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; user-select: none; overflow-x: hidden; }
         
         #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #080a0c; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
         .loader-bar-bg { width: 200px; height: 4px; background: #1a1d23; border-radius: 10px; margin-top: 20px; overflow: hidden; }
         .loader-bar-fill { width: 0%; height: 100%; background: var(--gold); transition: width 0.3s; }
 
-        .header { display: flex; justify-content: space-around; padding: 15px; background: rgba(0,0,0,0.6); border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 100; }
-        .stat-box { background: var(--glass); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 12px; min-width: 90px; }
-        .stat-value { color: var(--gold); font-weight: 800; font-size: 13px; }
+        .header { display: flex; justify-content: space-around; padding: 15px; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 100; }
+        .stat-box { background: var(--glass); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 12px; min-width: 100px; }
+        .stat-value { color: var(--gold); font-weight: 800; font-size: 14px; }
 
         .tab-content { display: none; padding: 20px; padding-bottom: 120px; }
-        .active-tab { display: block; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .active-tab { display: block; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .main-balance { font-size: 38px; margin: 20px 0; font-weight: 900; display: flex; align-items: center; justify-content: center; }
-        .main-balance img { width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; border: 2px solid var(--gold); }
+        .main-balance { font-size: 42px; margin: 20px 0; font-weight: 900; display: flex; align-items: center; justify-content: center; text-shadow: 0 0 20px rgba(243, 186, 47, 0.3); }
+        .main-balance img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; border: 2px solid var(--gold); }
 
-        .coin-btn { width: 210px; height: 210px; border-radius: 50%; border: 10px solid #1a1d23; cursor: pointer; transition: 0.1s; }
-        .coin-btn:active { transform: scale(0.92); }
+        .coin-btn { width: 230px; height: 230px; border-radius: 50%; border: 12px solid #1a1d23; cursor: pointer; transition: 0.1s; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        .coin-btn:active { transform: scale(0.9); }
 
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .premium-card { background: linear-gradient(145deg, #4d0000, #1a0000); border: 1px solid var(--red); padding: 12px; border-radius: 15px; text-align: left; }
-        .buy-btn { background: var(--gold); color: #000; border: none; padding: 8px; width: 100%; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 8px; font-size: 12px; }
+        .bd-branding { font-size: 18px; font-weight: 900; margin-top: 20px; letter-spacing: 1px; }
+        .bd-pisto { color: var(--gold); }
+        .bd-bg { color: var(--green); }
+        .bd-red { color: var(--red); }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
+        .card { background: linear-gradient(145deg, #1a0000, #080a0c); border: 1px solid var(--glass-border); padding: 15px; border-radius: 18px; text-align: left; position: relative; overflow: hidden; }
+        .card.locked { opacity: 0.6; filter: grayscale(1); }
+        .lock-icon { position: absolute; right: 10px; top: 10px; font-size: 18px; }
         
-        .task-btn { background: #1a1d23; color: #fff; border: 1px solid var(--glass-border); padding: 15px; width: 90%; border-radius: 15px; margin: 10px auto; display: flex; justify-content: space-between; align-items: center; }
-        .claim-btn { background: var(--green); color: #fff; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .buy-btn { background: var(--gold); color: #000; border: none; padding: 10px; width: 100%; border-radius: 10px; font-weight: 900; cursor: pointer; margin-top: 10px; font-size: 12px; }
+        .ad-btn-big { background: var(--red); color: #fff; border: none; padding: 15px; width: 85%; border-radius: 15px; font-weight: 800; margin-top: 20px; cursor: pointer; box-shadow: 0 5px 15px rgba(244, 42, 65, 0.3); }
 
-        .footer { position: fixed; bottom: 15px; left: 5%; width: 90%; background: rgba(18, 22, 28, 0.95); border: 1px solid var(--glass-border); display: flex; justify-content: space-around; padding: 12px 0; border-radius: 20px; backdrop-filter: blur(20px); z-index: 1000; }
-        .nav-item { font-size: 10px; color: #666; cursor: pointer; text-align: center; }
-        .nav-item.active { color: var(--gold); }
+        .footer { position: fixed; bottom: 15px; left: 5%; width: 90%; background: rgba(18, 22, 28, 0.98); border: 1px solid var(--glass-border); display: flex; justify-content: space-around; padding: 15px 0; border-radius: 25px; backdrop-filter: blur(20px); z-index: 1000; }
+        .nav-item { font-size: 11px; color: #555; cursor: pointer; transition: 0.3s; }
+        .nav-item.active { color: var(--gold); transform: translateY(-5px); }
 
-        .plus-one { position: absolute; color: var(--gold); font-size: 26px; font-weight: 900; animation: floatUp 0.8s forwards; pointer-events: none; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-120px); } }
+        .plus-one { position: absolute; color: var(--gold); font-size: 28px; font-weight: 900; animation: floatUp 0.8s forwards; pointer-events: none; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-130px); } }
     </style>
 </head>
 <body>
 
     <div id="loader">
-        <img src="https://i.ibb.co.com/bj9kTWJ5/Chat-GPT-Image-Jan-1-2026-01-45-44-PM.png" style="width:100px; border-radius:50%; border:2px solid var(--gold);">
-        <h2 style="color:var(--gold); margin-top:15px;">PISTO MINER V2</h2>
+        <img src="https://i.ibb.co.com/bj9kTWJ5/Chat-GPT-Image-Jan-1-2026-01-45-44-PM.png" style="width:120px; border-radius:50%; border:3px solid var(--gold);">
+        <h2 style="color:var(--gold); margin-top:20px; letter-spacing: 2px;">PISTO V2 PRO</h2>
         <div class="loader-bar-bg"><div id="loader-fill" class="loader-bar-fill"></div></div>
     </div>
 
     <div class="header">
         <div class="stat-box"><span>PROFIT/HR</span><br><span id="pph-val" class="stat-value">0</span></div>
-        <div class="stat-box"><span>TOTAL ADS</span><br><span id="ads-count" class="stat-value">0</span></div>
+        <div class="stat-box"><span>ADS WATCHED</span><br><span id="ads-count" class="stat-value">0</span></div>
     </div>
 
     <div id="tab-home" class="tab-content active-tab">
         <div class="main-balance"><img src="https://i.ibb.co.com/bj9kTWJ5/Chat-GPT-Image-Jan-1-2026-01-45-44-PM.png"><span id="balance">0</span></div>
         <img src="https://i.ibb.co.com/bj9kTWJ5/Chat-GPT-Image-Jan-1-2026-01-45-44-PM.png" class="coin-btn" onclick="mine(event)">
-        <p style="color:#006a4e; font-weight:900; margin-top:15px;">POWERED BY BANGLADESH 🇧🇩</p>
         
-        <div style="width: 85%; margin: 25px auto;">
-            <div style="display:flex; justify-content: space-between; font-size: 11px; margin-bottom:5px;"><span>⚡ Energy</span><span><span id="energy">1000</span>/1000</span></div>
-            <div style="width:100%; height:8px; background: #1a1d23; border-radius: 10px;"><div id="energy-bar" style="width:100%; height:100%; background: var(--gold);"></div></div>
+        <div class="bd-branding">
+            <span class="bd-pisto">PISTO</span> <span class="bd-bg">POWERED BY</span> <span class="bd-red">BANGLADESH 🇧🇩</span>
+        </div>
+
+        <button class="ad-btn-big" onclick="watchAdForReward()">
+            📺 WATCH AD (GET 2,000 COINS)
+        </button>
+
+        <div style="width: 80%; margin: 30px auto;">
+            <div style="display:flex; justify-content: space-between; font-size: 12px; margin-bottom:8px;">
+                <span>⚡ Energy Pool</span>
+                <span><span id="energy">1000</span>/1000</span>
+            </div>
+            <div style="width:100%; height:10px; background: #1a1d23; border-radius: 10px; border: 1px solid #333;">
+                <div id="energy-bar" style="width:100%; height:100%; background: linear-gradient(90deg, var(--gold), #ffcc00); border-radius:10px;"></div>
+            </div>
         </div>
     </div>
 
     <div id="tab-mine" class="tab-content">
-        <h3 style="text-align:left; color:var(--red);">⛏️ MINING RIGS</h3>
+        <h3 style="text-align:left; color:var(--gold); margin-bottom:5px;">⛏️ MINING RIGS</h3>
+        <p style="text-align:left; font-size:11px; color:#888; margin-bottom:15px;">Watch ads to unlock premium cards.</p>
         <div id="shop-container" class="grid"></div>
-    </div>
-
-    <div id="tab-tasks" class="tab-content">
-        <h3 style="text-align:left; color:var(--gold);">📋 REWARD TASKS</h3>
-        
-        <div class="task-btn">
-            <div><b>📺 Watch Ad (Special)</b><br><small style="color:var(--gold);">+10,000 Coins</small></div>
-            <button class="claim-btn" onclick="showNewAd()">WATCH</button>
-        </div>
-
-        <div class="task-btn">
-            <div><b>📽️ Video Bonus</b><br><small style="color:var(--gold);">+5,000 Coins</small></div>
-            <button class="claim-btn" onclick="showAdsgram()">START</button>
-        </div>
-
-        <div class="task-btn">
-            <div><b>📢 Join Channel</b><br><small style="color:var(--gold);">+10,000 Coins</small></div>
-            <button id="t1" class="claim-btn" onclick="doTask('t1', 10000, 'https://t.me/PistoTap_bot')">JOIN</button>
-        </div>
     </div>
 
     <div class="footer">
         <div class="nav-item active" onclick="showTab('tab-home', this)">🏠<br>Home</div>
         <div class="nav-item" onclick="showTab('tab-mine', this)">⛏️<br>Mine</div>
-        <div class="nav-item" onclick="showTab('tab-tasks', this)">📋<br>Tasks</div>
+        <div class="nav-item" onclick="tg.showAlert('Airdrop coming soon!')">🎁<br>Airdrop</div>
     </div>
 
     <script type="module">
@@ -121,76 +119,66 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let bal = 0, nrg = 1000, pph = 0, ads = 0;
-        const uid = (tg.initDataUnsafe.user?.id || "user_test").toString();
+        let bal = 0, nrg = 1000, pph = 0, ads = 0, purchased = [];
+        const uid = (tg.initDataUnsafe.user?.id || "pisto_pro_user").toString();
         const uRef = doc(db, "users", uid);
 
+        // ১২টি কার্ড - আনলক করার জন্য অ্যাড লিমিট বাড়ানো হয়েছে
         const nodes = [
-            { id: "c1", name: "Bronze Node", price: 10000, profit: 500 },
-            { id: "c2", name: "Silver Node", price: 50000, profit: 2800 },
-            { id: "c3", name: "Gold Node", price: 200000, profit: 12000 },
-            { id: "c4", name: "Platinum Rig", price: 1000000, profit: 65000 },
-            { id: "c5", name: "Diamond Node", price: 5000000, profit: 350000 },
-            { id: "c6", name: "Ruby Server", price: 25000000, profit: 1800000 },
-            { id: "c7", name: "Quantum Node", price: 100000000, profit: 8000000 },
-            { id: "c8", name: "Pisto Master", price: 500000000, profit: 45000000 }
+            { id: 1, name: "Node Alpha", price: 50000, profit: 1200, adLimit: 0 },
+            { id: 2, name: "Node Beta", price: 150000, profit: 4500, adLimit: 5 },
+            { id: 3, name: "Node Gamma", price: 500000, profit: 18000, adLimit: 12 },
+            { id: 4, name: "Red Server", price: 2000000, profit: 85000, adLimit: 25 },
+            { id: 5, name: "Cloud Miner", price: 10000000, profit: 450000, adLimit: 40 },
+            { id: 6, name: "AI Rig", price: 50000000, profit: 2500000, adLimit: 60 },
+            { id: 7, name: "BD Farm", price: 150000000, profit: 8000000, adLimit: 85 },
+            { id: 8, name: "Data Center", price: 500000000, profit: 30000000, adLimit: 120 },
+            { id: 9, name: "Satellite", price: 1500000000, profit: 100000000, adLimit: 160 },
+            { id: 10, name: "Quantum", price: 5000000000, profit: 400000000, adLimit: 210 },
+            { id: 11, name: "Pisto King", price: 20000000000, profit: 1800000000, adLimit: 300 },
+            { id: 12, name: "Legendary", price: 100000000000, profit: 10000000000, adLimit: 500 }
         ];
 
         async function init() {
-            let p = 0; const l = setInterval(() => { p+=20; document.getElementById('loader-fill').style.width=p+'%'; if(p>=100){clearInterval(l); document.getElementById('loader').style.display='none';}}, 150);
+            let p = 0; const l = setInterval(() => { p+=10; document.getElementById('loader-fill').style.width=p+'%'; if(p>=100){clearInterval(l); document.getElementById('loader').style.display='none';}}, 100);
+
             const s = await getDoc(uRef);
             if(s.exists()){
-                const d = s.data(); bal = d.balance || 0; nrg = d.energy || 1000;
-                pph = d.pph || 0; ads = d.ads || 0;
-            } else { await setDoc(uRef, { balance: 0, energy: 1000, pph: 0, ads: 0 }); }
+                const d = s.data();
+                bal = d.balance || 0; nrg = d.energy || 1000;
+                pph = d.pph || 0; ads = d.ads || 0; purchased = d.purchased || [];
+            } else { await setDoc(uRef, { balance: 0, energy: 1000, pph: 0, ads: 0, purchased: [] }); }
             render(); genShop(); loops();
         }
 
-        // New Ad Network (ID: 10390421) Function
-        window.showNewAd = () => {
+        window.watchAdForReward = () => {
             show_10390421().then(async () => {
-                bal += 10000; ads++; render();
+                bal += 2000; // রিওয়ার্ড কমিয়ে ২০০০ করা হয়েছে
+                ads++;
+                render();
+                genShop(); // কার্ড আনলক চেক করতে শপ রিফ্রেশ
                 await updateDoc(uRef, { balance: bal, ads: ads });
                 confetti();
-                tg.showAlert('🎉 You have received 10,000 bonus coins!');
-            }).catch(e => {
-                tg.showAlert('Ad not available right now.');
-            });
+                tg.showAlert('Success! +2,000 Coins added.');
+            }).catch(() => tg.showAlert('Ad failed to load. Try again!'));
         };
 
-        // Adsgram Function (ID: 20424)
-        window.showAdsgram = async () => {
-            const controller = window.Adsgram.init({ blockId: "20424" });
-            try {
-                const res = await controller.show();
-                if (res.done) {
-                    bal += 5000; ads++; render();
-                    await updateDoc(uRef, { balance: bal, ads: ads });
-                    confetti(); tg.showAlert("Success: +5,000 Coins!");
-                }
-            } catch (e) { tg.showAlert("Video not ready!"); }
-        };
-
-        window.doTask = (id, reward, link) => {
-            window.open(link, '_blank');
-            const b = document.getElementById(id); b.innerText = "WAITING...";
-            setTimeout(async () => {
-                bal += reward; render(); await updateDoc(uRef, { balance: bal });
-                b.innerText = "DONE"; b.disabled = true; confetti();
-            }, 5000);
-        };
-
-        window.buyNode = async (id, pr, pf) => {
+        window.buyNode = async (id, pr, pf, limit) => {
+            if(ads < limit) {
+                tg.showAlert(`Locked! You need to watch ${limit} ads total. Current: ${ads}`);
+                return;
+            }
             if(bal >= pr) {
-                bal -= pr; pph += pf; render();
-                await updateDoc(uRef, { balance: bal, pph: pph });
+                bal -= pr; pph += pf; purchased.push(id);
+                render(); genShop();
+                await updateDoc(uRef, { balance: bal, pph: pph, purchased: purchased });
                 confetti();
-            } else tg.showAlert("Need more coins!");
+            } else tg.showAlert("Insufficient balance!");
         };
 
         function loops() {
             setInterval(() => { if(pph > 0) bal += (pph/3600); if(nrg < 1000) nrg++; render(); }, 1000);
-            setInterval(() => updateDoc(uRef, { balance: bal, energy: nrg }), 25000);
+            setInterval(() => updateDoc(uRef, { balance: bal, energy: nrg }), 20000);
         }
 
         function render() {
@@ -203,8 +191,16 @@
 
         function genShop() {
             let h = ""; nodes.forEach(n => {
-                h += `<div class="premium-card"><b>${n.name}</b><br><small style="color:var(--gold);">+${n.profit.toLocaleString()}/h</small>
-                <button class="buy-btn" onclick="buyNode('${n.id}', ${n.price}, ${n.profit})">💰 ${n.price.toLocaleString()}</button></div>`;
+                const isLocked = ads < n.adLimit;
+                h += `<div class="card ${isLocked ? 'locked' : ''}">
+                    ${isLocked ? '<span class="lock-icon">🔒</span>' : ''}
+                    <b style="font-size:13px;">${n.name}</b><br>
+                    <small style="color:var(--gold);">+${n.profit.toLocaleString()}/h</small><br>
+                    <small style="font-size:9px; color:#777;">Req: ${n.adLimit} Ads</small>
+                    <button class="buy-btn" onclick="buyNode(${n.id}, ${n.price}, ${n.profit}, ${n.adLimit})">
+                        ${isLocked ? 'LOCKED' : '💰 ' + n.price.toLocaleString()}
+                    </button>
+                </div>`;
             });
             document.getElementById('shop-container').innerHTML = h;
         }
