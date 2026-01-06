@@ -1,195 +1,219 @@
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, getDocs, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pisto Miner - Optimized</title>
+    
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src='//libtl.com/sdk.js' data-zone='10390421' data-sdk='show_10390421'></script>
 
-    const firebaseConfig = { 
-        apiKey: "AIzaSyDTpsebnsHvl9RI9hjkA3VnRY9-NX0ESo8", 
-        authDomain: "pisto-f4f26.firebaseapp.com", 
-        projectId: "pisto-f4f26", 
-        storageBucket: "pisto-f4f26.firebasestorage.app", 
-        messagingSenderId: "345148284758", 
-        appId: "1:345148284758:web:fc6e1174cb2022842400f7" 
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const tg = window.Telegram.WebApp;
-
-    // Game State
-    let bal = 0, pph = 0, ads = 0, refs = 0, energy = 1000, maxEnergy = 1000;
-    let tapPower = 1, dailyAdRefills = 0, lastTap = 0, tapCount = 0;
-    let streak = 0, lastLoginDate = "";
-
-    const MAX_DAILY_REFILLS = 5;
-    const TAP_LIMIT_PER_SEC = 10; // Anti-cheat threshold
-
-    const uid = (tg.initDataUnsafe.user?.id || "pisto_user").toString();
-    const uname = tg.initDataUnsafe.user?.first_name || "Miner";
-    const uRef = doc(db, "users", uid);
-
-    async function init() {
-        const s = await getDoc(uRef);
-        if(s.exists()){
-            const d = s.data();
-            bal = d.balance || 0; pph = d.pph || 0;
-            ads = d.ads || 0; refs = d.refCount || 0;
-            energy = d.energy || 1000; maxEnergy = d.maxEnergy || 1000;
-            dailyAdRefills = d.dailyAdRefills || 0;
-            streak = d.streak || 0;
-            lastLoginDate = d.lastLoginDate || "";
-        } else {
-            // New User Setup
-            await setDoc(uRef, { 
-                balance: 1000, pph: 0, ads: 0, refCount: 0, name: uname, 
-                energy: 1000, maxEnergy: 1000, streak: 0, dailyAdRefills: 0 
-            });
-        }
+    <style>
+        :root { --gold: #f3ba2f; --dark: #080a0c; --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); --red: #f42a41; --green: #00ff88; --vip-blue: #007bff; --diamond: #b9f2ff; }
+        body { background: var(--dark); color: #fff; text-align: center; font-family: 'Inter', sans-serif; margin: 0; padding: 0; user-select: none; overflow-x: hidden; }
         
-        checkDailyReward();
-        render();
-        mainLoop();
-        updateMissions();
-    }
+        .powered-by { font-size: 13px; font-weight: 900; margin: 15px 0; background: linear-gradient(90deg, #006a4e, #f3ba2f, #f42a41, #006a4e); background-size: 300% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: moveGradient 4s linear infinite; text-transform: uppercase; }
+        @keyframes moveGradient { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
 
-    // --- 1. Ad -> Energy Refill System ---
-    window.refillEnergyAd = async () => {
-        if (dailyAdRefills >= MAX_DAILY_REFILLS) {
-            tg.showAlert(`Limit reached! You can refill ${MAX_DAILY_REFILLS} times daily.`);
-            return;
-        }
+        .header { display: flex; justify-content: space-around; padding: 10px; background: rgba(0,0,0,0.9); border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 1000; font-size: 11px; }
+        .stat-box { background: var(--glass); border: 1px solid var(--glass-border); padding: 5px 10px; border-radius: 10px; min-width: 65px; }
+        .stat-value { color: var(--gold); font-weight: bold; }
 
-        show_10390421().then(async () => {
-            energy = maxEnergy;
-            dailyAdRefills++;
-            await updateDoc(uRef, { energy: maxEnergy, dailyAdRefills: increment(1) });
-            render();
-            tg.showAlert("Energy fully restored! ⚡");
-        }).catch(() => tg.showAlert("Ad failed to load. Try again later."));
-    };
+        .tab-content { display: none; padding: 15px; padding-bottom: 110px; animation: fadeIn 0.4s; }
+        .active-tab { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    // --- 2. Anti-Cheat System ---
-    function isCheating() {
-        const now = Date.now();
-        if (now - lastTap < 1000) {
-            tapCount++;
-        } else {
-            tapCount = 1;
-            lastTap = now;
-        }
-        return tapCount > TAP_LIMIT_PER_SEC;
-    }
+        .main-balance { font-size: 34px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin: 10px 0; }
+        .main-balance img { width: 35px; height: 35px; margin-right: 10px; border: 2px solid var(--gold); border-radius: 50%; }
 
-    window.mine = (e) => {
-        if (isCheating()) {
-            console.warn("Tap rate exceeded limit.");
-            return;
-        }
-        if (energy < tapPower) return;
+        .coin-btn { width: 180px; height: 180px; border-radius: 50%; cursor: pointer; transition: 0.1s; border: 8px solid #1a1d23; display: block; margin: 0 auto; box-shadow: 0 0 20px rgba(243, 186, 47, 0.1); }
+        .coin-btn:active { transform: scale(0.92); }
 
-        bal += tapPower;
-        energy -= tapPower;
-        render();
-        
-        // Visual Feedback (floating text)
-        const p = document.createElement('div');
-        p.innerText = `+${tapPower}`;
-        p.style.cssText = `position:absolute; left:${e.pageX || e.touches[0].pageX}px; top:${e.pageY || e.touches[0].pageY}px; color:var(--gold); animation:float 0.8s forwards; font-weight:bold; pointer-events:none;`;
-        document.body.appendChild(p);
-        setTimeout(() => p.remove(), 800);
-    };
+        .energy-bar { width: 80%; height: 10px; background: #222; border-radius: 10px; margin: 15px auto; overflow: hidden; border: 1px solid var(--glass-border); }
+        .energy-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #ffcc00, #f3ba2f); transition: 0.3s; }
 
-    // --- 3. Referral Mission System ---
-    function updateMissions() {
-        const progress = Math.min((refs / 1000) * 100, 100);
-        // Assuming you have a div with id 'mission-box'
-        const missionHTML = `
-            <div class="card" style="border: 1px solid var(--gold); margin-top:10px;">
-                <b>🚀 Referral Milestone</b><br>
-                <small>1,000 Friends = $100 Reward (Listing Gift)</small>
-                <div class="energy-bar" style="width:100%; height:8px; margin:10px 0;">
-                    <div class="energy-fill" style="width:${progress}%; background:var(--green);"></div>
-                </div>
-                <small>${refs}/1000 referrals</small>
-                <button class="buy-btn" disabled style="background:#222; color:#555;">
-                    ${refs >= 1000 ? "LOCKED UNTIL LISTING" : "IN PROGRESS"}
-                </button>
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .card { background: linear-gradient(145deg, #1a1d23, #080a0c); border: 1px solid var(--glass-border); padding: 12px; border-radius: 15px; text-align: left; transition: 0.3s; }
+        .buy-btn { background: var(--gold); color: #000; border: none; padding: 10px; width: 100%; border-radius: 10px; font-weight: 900; cursor: pointer; margin-top: 8px; font-size: 11px; }
+        .buy-btn:disabled { background: #333; color: #777; }
+
+        .footer { position: fixed; bottom: 15px; left: 5%; width: 90%; background: rgba(18, 22, 28, 0.98); border: 1px solid var(--glass-border); display: flex; justify-content: space-around; padding: 12px 0; border-radius: 22px; z-index: 1000; backdrop-filter: blur(10px); }
+        .nav-item { font-size: 10px; color: #666; cursor: pointer; text-align: center; font-weight: bold; }
+        .nav-item.active { color: var(--gold); }
+        @keyframes float { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-70px); } }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="stat-box">PPH<br><span id="pph-val" class="stat-value">0</span></div>
+        <div class="stat-box">REFILL<br><span id="refill-count" class="stat-value">0</span></div>
+        <div class="stat-box">DIAMOND<br><span id="ref-count" class="stat-value" style="color:var(--diamond);">0</span></div>
+    </div>
+
+    <div id="tab-home" class="tab-content active-tab">
+        <div class="powered-by">PISTO COIN POWERED BY BANGLADESH 🇧🇩</div>
+        <div class="main-balance"><img src="https://i.ibb.co.com/bj9kTWJ5/Chat-GPT-Image-Jan-1-2026-01-45-44-PM.png"><span id="balance">0</span></div>
+        <img src="https://i.ibb.co.com/bj9kTWJ5/Chat-GPT-Image-Jan-1-2026-01-45-44-PM.png" class="coin-btn" onclick="mine(event)">
+        <div class="energy-bar"><div id="energy-fill" class="energy-fill"></div></div>
+        <p style="font-size:12px;"><span id="energy-text">1000/1000</span> ⚡</p>
+        <div style="display:flex; justify-content:center; gap:10px; padding: 0 10px;">
+            <button onclick="watchFixedAd()" style="background:var(--red); border:none; color:white; padding:12px; border-radius:12px; font-weight:bold; font-size:12px; flex:1;">📺 AD (+2K)</button>
+            <button onclick="refillEnergyAd()" style="background:var(--vip-blue); border:none; color:white; padding:12px; border-radius:12px; font-weight:bold; font-size:12px; flex:1;">⚡ REFILL</button>
+        </div>
+    </div>
+
+    <div id="tab-mine" class="tab-content">
+        <h3 style="color:var(--diamond); margin-top:0;">💠 SPECIAL RIGS</h3>
+        <div class="grid">
+            <div id="diag-1" class="card">
+                <b>Ad Booster Rig</b><br><small>+15k PPH</small>
+                <button class="buy-btn" onclick="buyAdRig(1, 15000)">WATCH 5 ADS</button>
             </div>
-        `;
-        // Inject into your tasks tab
-        const taskTab = document.getElementById('tab-tasks');
-        if (taskTab) {
-            const existingMission = document.getElementById('milestone-ui');
-            if (!existingMission) {
-                const div = document.createElement('div');
-                div.id = "milestone-ui";
-                div.innerHTML = missionHTML;
-                taskTab.prepend(div);
+            <div id="diag-2" class="card" style="border:1px solid var(--diamond);">
+                <b>Diamond Rig</b><br><small>+50k PPH</small>
+                <button id="dia-btn-2" class="buy-btn" style="background:var(--diamond)" onclick="buyDiamondRig(2, 10, 50000)">Cost: 10 💠</button>
+            </div>
+        </div>
+        <h3 style="color:var(--gold); margin-top:20px;">⛏️ INDUSTRIAL RIGS</h3>
+        <div id="shop-container" class="grid"></div>
+    </div>
+
+    <div id="tab-tasks" class="tab-content">
+        <div id="milestone-ui"></div> <h3 style="color:var(--gold);">🏆 LEADERS</h3>
+        <div id="leaderboard"></div>
+        <button class="buy-btn" style="padding:15px; margin-top:15px;" onclick="copyRefLink()">🔗 INVITE FRIENDS</button>
+    </div>
+
+    <div id="tab-goal" class="tab-content">
+        <h2 style="color:var(--gold);">ROADMAP</h2>
+        <div style="text-align:left; border-left:2px solid var(--gold); padding-left:20px; font-size: 14px;">
+            <p><b>Phase 1-7:</b> Growth & Community</p>
+            <p style="color:var(--green); border:1px solid var(--green); padding:10px; border-radius: 10px;"><b>Phase 8:</b> LISTING (16 DEC 2028)</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="nav-item active" onclick="showTab('tab-home', this)">🏠<br>Home</div>
+        <div class="nav-item" onclick="showTab('tab-mine', this)">⛏️<br>Mine</div>
+        <div class="nav-item" onclick="showTab('tab-tasks', this)">🏆<br>Rank</div>
+        <div class="nav-item" onclick="showTab('tab-goal', this)">📅<br>Goal</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, getDocs, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyDTpsebnsHvl9RI9hjkA3VnRY9-NX0ESo8", authDomain: "pisto-f4f26.firebaseapp.com", projectId: "pisto-f4f26", storageBucket: "pisto-f4f26.firebasestorage.app", messagingSenderId: "345148284758", appId: "1:345148284758:web:fc6e1174cb2022842400f7" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const tg = window.Telegram.WebApp;
+
+        let bal = 0, pph = 0, ads = 0, refs = 0, energy = 1000, maxEnergy = 1000, tapPower = 1;
+        let activeRigs = [], dailyAdRefills = 0, lastTap = 0, tapCount = 0;
+        const MAX_REFILLS = 5;
+
+        const uid = (tg.initDataUnsafe.user?.id || "test_user").toString();
+        const uname = tg.initDataUnsafe.user?.first_name || "Miner";
+        const uRef = doc(db, "users", uid);
+
+        async function init() {
+            const s = await getDoc(uRef);
+            if(s.exists()){
+                const d = s.data();
+                bal = d.balance || 0; pph = d.pph || 0; ads = d.ads || 0; refs = d.refCount || 0;
+                energy = d.energy || 1000; maxEnergy = d.maxEnergy || 1000;
+                activeRigs = d.activeRigs || []; dailyAdRefills = d.dailyAdRefills || 0;
+            } else {
+                await setDoc(uRef, { balance: 1000, pph: 0, ads: 0, refCount: 0, name: uname, energy: 1000, maxEnergy: 1000, activeRigs: [], dailyAdRefills: 0 });
             }
-        }
-    }
-
-    // --- 4 & 5. Daily Reward & Streak System ---
-    async function checkDailyReward() {
-        const today = new Date().toISOString().split('T')[0];
-        
-        if (lastLoginDate === today) return; // Already claimed today
-
-        const lastDate = new Date(lastLoginDate);
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-        if (lastLoginDate === yesterdayStr) {
-            streak++;
-        } else {
-            streak = 1; // Reset streak if missed a day
+            render(); genShop(); loadLeaderboard(); mainLoop(); updateMissions();
         }
 
-        const bonus = 5000 * streak;
-        bal += bonus;
-        lastLoginDate = today;
-        dailyAdRefills = 0; // Reset ad refills daily
+        // --- ANTI-CHEAT & MINE ---
+        window.mine = (e) => {
+            const now = Date.now();
+            if(now - lastTap < 1000) tapCount++; else { tapCount = 1; lastTap = now; }
+            if(tapCount > 10 || energy < tapPower) return;
 
-        await updateDoc(uRef, { 
-            balance: increment(bonus), 
-            streak: streak, 
-            lastLoginDate: today,
-            dailyAdRefills: 0
-        });
+            bal += tapPower; energy -= tapPower; render();
+            const p = document.createElement('div'); p.innerText = `+${tapPower}`; p.style.cssText = `position:absolute; left:${e.pageX || e.touches[0].pageX}px; top:${e.pageY || e.touches[0].pageY}px; color:var(--gold); animation:float 0.8s forwards; font-weight:bold; pointer-events:none;`;
+            document.body.appendChild(p); setTimeout(()=>p.remove(), 800);
+        };
 
-        tg.showAlert(`Day ${streak} Streak! You earned ${bonus.toLocaleString()} coins! 🎁`);
-        render();
-    }
+        // --- ENERGY REFILL AD ---
+        window.refillEnergyAd = () => {
+            if(dailyAdRefills >= MAX_REFILLS) { tg.showAlert("Daily limit reached!"); return; }
+            show_10390421().then(async () => {
+                energy = maxEnergy; dailyAdRefills++;
+                await updateDoc(uRef, { energy, dailyAdRefills: increment(1) });
+                render(); tg.showAlert("Energy Refilled! ⚡");
+            });
+        };
 
-    // --- 6. Energy System Improvements ---
-    function mainLoop() {
-        setInterval(() => { 
-            // Passive Regen
-            if(energy < maxEnergy) energy = Math.min(energy + 2, maxEnergy); 
-            
-            // Passive Income (PPH)
-            if(pph > 0) bal += (pph/3600); 
-            
-            render(); 
-        }, 1000);
+        // --- MISSIONS & REFRESH ---
+        function updateMissions() {
+            const progress = Math.min((refs/1000)*100, 100);
+            document.getElementById('milestone-ui').innerHTML = `
+                <div class="card" style="border: 1px solid var(--gold); margin-bottom:15px;">
+                    <b>🚀 Milestone: $100 Gift</b><br><small>Invite 1,000 Friends</small>
+                    <div class="energy-bar" style="width:100%; height:8px;"><div class="energy-fill" style="width:${progress}%; background:var(--green);"></div></div>
+                    <small>${refs}/1000 Completed</small>
+                </div>`;
+        }
 
-        // Periodic Sync with Firestore
-        setInterval(() => {
-            updateDoc(uRef, { balance: bal, energy: energy });
-        }, 15000);
-    }
+        function mainLoop() {
+            setInterval(() => { if(energy < maxEnergy) energy = Math.min(energy + 2, maxEnergy); if(pph > 0) bal += (pph/3600); render(); }, 1000);
+            setInterval(() => updateDoc(uRef, { balance: bal, energy: energy }), 15000);
+        }
 
-    function render() {
-        document.getElementById('balance').innerText = Math.floor(bal).toLocaleString();
-        document.getElementById('pph-val').innerText = "+" + Math.floor(pph).toLocaleString();
-        document.getElementById('ref-count').innerText = refs;
-        document.getElementById('ads-count').innerText = `${MAX_DAILY_REFILLS - dailyAdRefills} Left`;
-        
-        const energyFill = document.getElementById('energy-fill');
-        energyFill.style.width = (energy/maxEnergy)*100 + '%';
-        document.getElementById('energy-text').innerText = `${Math.floor(energy)}/${maxEnergy}`;
-    }
+        function render() {
+            document.getElementById('balance').innerText = Math.floor(bal).toLocaleString();
+            document.getElementById('pph-val').innerText = "+" + Math.floor(pph).toLocaleString();
+            document.getElementById('ref-count').innerText = refs;
+            document.getElementById('refill-count').innerText = `${MAX_REFILLS - dailyAdRefills}`;
+            document.getElementById('energy-fill').style.width = (energy/maxEnergy)*100 + '%';
+            document.getElementById('energy-text').innerText = `${Math.floor(energy)}/${maxEnergy}`;
+        }
 
-    // Initialize the app
-    init();
+        // --- SHOP & OTHER ---
+        window.buyRig = async (id, pr, pf) => {
+            if(bal >= pr && !activeRigs.includes(id)) {
+                bal -= pr; pph += pf; activeRigs.push(id);
+                await updateDoc(uRef, { balance: bal, pph, activeRigs });
+                genShop(); render();
+            }
+        };
 
-</script>
+        function genShop() {
+            let h = "";
+            for(let i=1; i<=20; i++) {
+                const isActive = activeRigs.includes(i);
+                h += `<div class="card ${isActive ? 'active-card' : ''}"><b>Rig V${i}</b><br><small>+${i*2500}/h</small><br>
+                <button class="buy-btn" ${isActive ? 'disabled' : ''} onclick="buyRig(${i}, ${i*50000}, ${i*2500})">${isActive ? 'ACTIVE' : '💰 '+(i*50000).toLocaleString()}</button></div>`;
+            }
+            document.getElementById('shop-container').innerHTML = h;
+        }
+
+        window.showTab = (id, el) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active-tab'); el.classList.add('active');
+        };
+
+        window.loadLeaderboard = async () => {
+            const q = query(collection(db, "users"), orderBy("refCount", "desc"), limit(5));
+            const snap = await getDocs(q);
+            let h = "";
+            snap.forEach(d => { h += `<div style="display:flex; justify-content:space-between; padding:8px; background:var(--glass); border-radius:10px; margin-bottom:5px;"><span>${d.data().name}</span><b>${d.data().refCount || 0} 💠</b></div>`; });
+            document.getElementById('leaderboard').innerHTML = h;
+        };
+
+        window.watchFixedAd = () => { show_10390421().then(() => { bal += 2000; ads++; render(); }); };
+        window.copyRefLink = () => { tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/YourBotName?start=${uid}`); };
+
+        init();
+    </script>
+</body>
+</html>
